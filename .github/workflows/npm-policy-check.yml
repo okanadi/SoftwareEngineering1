@@ -6,7 +6,7 @@ on:
       - main
       - develop
     paths:
-      - smartBuilders-frontend/**  
+      - SmartBuilders/**  
 
 jobs:
   npm-policy:
@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: smartBuilders-frontend
+        working-directory: SmartBuilders
 
     steps:
       - name: Repository auschecken
