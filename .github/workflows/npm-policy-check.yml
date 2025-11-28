@@ -5,11 +5,17 @@ on:
     branches:
       - main
       - develop
+    paths:
+      - smartBuilders-frontend/**  
 
 jobs:
   npm-policy:
     name: Prüfe npm-Richtlinien
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: smartBuilders-frontend
 
     steps:
       - name: Repository auschecken
