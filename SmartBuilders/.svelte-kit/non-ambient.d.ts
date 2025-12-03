@@ -27,14 +27,29 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/";
+		RouteId(): "/" | "/company" | "/company/projects" | "/company/projects/project-detail" | "/company/projects/project-detail/edit" | "/create-project" | "/customer" | "/customer/projects" | "/customer/projects/project-detail" | "/customer/projects/project-detail/edit" | "/employee" | "/employee/projects" | "/employee/projects/project-detail" | "/employee/projects/project-detail/edit" | "/signin" | "/signup";
 		RouteParams(): {
 			
 		};
 		LayoutParams(): {
-			"/": Record<string, never>
+			"/": Record<string, never>;
+			"/company": Record<string, never>;
+			"/company/projects": Record<string, never>;
+			"/company/projects/project-detail": Record<string, never>;
+			"/company/projects/project-detail/edit": Record<string, never>;
+			"/create-project": Record<string, never>;
+			"/customer": Record<string, never>;
+			"/customer/projects": Record<string, never>;
+			"/customer/projects/project-detail": Record<string, never>;
+			"/customer/projects/project-detail/edit": Record<string, never>;
+			"/employee": Record<string, never>;
+			"/employee/projects": Record<string, never>;
+			"/employee/projects/project-detail": Record<string, never>;
+			"/employee/projects/project-detail/edit": Record<string, never>;
+			"/signin": Record<string, never>;
+			"/signup": Record<string, never>
 		};
-		Pathname(): "/";
+		Pathname(): "/" | "/company" | "/company/" | "/company/projects" | "/company/projects/" | "/company/projects/project-detail" | "/company/projects/project-detail/" | "/company/projects/project-detail/edit" | "/company/projects/project-detail/edit/" | "/create-project" | "/create-project/" | "/customer" | "/customer/" | "/customer/projects" | "/customer/projects/" | "/customer/projects/project-detail" | "/customer/projects/project-detail/" | "/customer/projects/project-detail/edit" | "/customer/projects/project-detail/edit/" | "/employee" | "/employee/" | "/employee/projects" | "/employee/projects/" | "/employee/projects/project-detail" | "/employee/projects/project-detail/" | "/employee/projects/project-detail/edit" | "/employee/projects/project-detail/edit/" | "/signin" | "/signin/" | "/signup" | "/signup/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/robots.txt" | string & {};
 	}

@@ -1,3 +1,15 @@
 {
-	"/": []
+	"/": [],
+	"/company/projects": [],
+	"/company/projects/project-detail": [],
+	"/company/projects/project-detail/edit": [],
+	"/create-project": [],
+	"/customer/projects": [],
+	"/customer/projects/project-detail": [],
+	"/customer/projects/project-detail/edit": [],
+	"/employee/projects": [],
+	"/employee/projects/project-detail": [],
+	"/employee/projects/project-detail/edit": [],
+	"/signin": [],
+	"/signup": []
 }
