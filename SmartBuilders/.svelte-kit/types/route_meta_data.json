@@ -1,15 +1,15 @@
 {
 	"/": [],
 	"/company/projects": [],
-	"/company/projects/project-detail": [],
-	"/company/projects/project-detail/edit": [],
+	"/company/projects/[id]": [],
+	"/company/projects/[id]/edit": [],
 	"/create-project": [],
 	"/customer/projects": [],
-	"/customer/projects/project-detail": [],
-	"/customer/projects/project-detail/edit": [],
+	"/customer/projects/[id]": [],
+	"/customer/projects/[id]/edit": [],
 	"/employee/projects": [],
-	"/employee/projects/project-detail": [],
-	"/employee/projects/project-detail/edit": [],
+	"/employee/projects/[id]": [],
+	"/employee/projects/[id]/edit": [],
 	"/signin": [],
 	"/signup": []
 }
