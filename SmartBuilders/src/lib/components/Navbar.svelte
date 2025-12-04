@@ -16,13 +16,18 @@
   function handleSignUp() {
     goto('/signup');
   }
+  function handleHome() {
+    goto('/');
+  }
 </script>
 
 <nav class="fixed top-0 left-0 w-full z-50 h-20 md:h-24 lg:h-28 flex items-center p-10 rounded-3xl border border-white/30 bg-white/5 backdrop-blur-md">
   <div class="container mx-auto flex items-center justify-between p-4">
     <!-- Logo -->
     <div class="text-xl font-bold flex items-center">
-      <img src={logo} alt="Logo" class="h-16 w-16 md:h-19 md:w-19 lg:h-20 lg:w-20 mr-10" />
+      <button on:click={handleHome} class="p-0 bg-transparent border-0">
+        <img src={logo} alt="Logo" class="h-16 w-16 md:h-19 md:w-19 lg:h-20 lg:w-20 mr-10" />
+      </button>
     </div>
 
     <!-- Desktop Buttons -->
