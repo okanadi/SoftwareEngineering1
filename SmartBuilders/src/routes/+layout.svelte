@@ -1,12 +1,25 @@
 <script lang="ts">
-	import './layout.css';
-	import favicon from '$lib/assets/favicon.svg';
+	import '../app.css';
+	import Navbar from '$lib/components/Navbar.svelte';
 	
 	let { children } = $props();
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
 </svelte:head>
 
+<Navbar />
+
+<main class="mt-16"> <!-- mt-16, damit Navbar nicht überlappt -->
+
+</main>
+
 {@render children()}
+
+<style lang="postcss">
+  @reference "tailwindcss";
+  :global(html) {
+	background-color: #212121;
+    color: #f2f2f2;
+  }
+</style>
