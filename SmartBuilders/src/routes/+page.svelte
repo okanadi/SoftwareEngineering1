@@ -1,17 +1,13 @@
 <script lang="ts">
-  import Navbar from '$lib/components/Navbar.svelte';
   import Card from '$lib/components/Card.svelte';
-  import Footer from '$lib/components/Footer.svelte';
 
   function handleRole(role: String) {
     console.log("Chosen role:", role);
   }
 </script>
 
-<Navbar />
-
 <main class="container mx-auto p-4 pt-24 md:pt-32 lg:pt-40">
-  <h1 class="text-4xl font-bold mb-4">Willkommen bei SmartBuilders</h1>
+  <h1 class="text-5xl font-bold mb-4">Willkommen bei SmartBuilders!</h1>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto p-10">
 
   <!-- CARD 1 -->
@@ -42,4 +38,4 @@
 </div>
 </main>
 
-<Footer />
+
