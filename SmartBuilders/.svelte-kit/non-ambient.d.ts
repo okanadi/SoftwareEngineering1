@@ -56,6 +56,6 @@ declare module "$app/types" {
 		};
 		Pathname(): "/" | "/company" | "/company/" | "/company/projects" | "/company/projects/" | `/company/projects/${string}` & {} | `/company/projects/${string}/` & {} | `/company/projects/${string}/edit` & {} | `/company/projects/${string}/edit/` & {} | "/create-project" | "/create-project/" | "/customer" | "/customer/" | "/customer/projects" | "/customer/projects/" | `/customer/projects/${string}` & {} | `/customer/projects/${string}/` & {} | `/customer/projects/${string}/edit` & {} | `/customer/projects/${string}/edit/` & {} | "/employee" | "/employee/" | "/employee/projects" | "/employee/projects/" | `/employee/projects/${string}` & {} | `/employee/projects/${string}/` & {} | `/employee/projects/${string}/edit` & {} | `/employee/projects/${string}/edit/` & {} | "/signin" | "/signin/" | "/signup" | "/signup/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/robots.txt" | string & {};
+		Asset(): "/assets/SmartBuildersBackground.webp" | "/robots.txt" | string & {};
 	}
 }
