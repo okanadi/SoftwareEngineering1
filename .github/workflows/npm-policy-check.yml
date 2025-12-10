@@ -9,14 +9,12 @@ on:
       - SmartBuilders/**  
 
 jobs:
-  npm-policy:
-    name: Prüfe npm-Richtlinien
+  install:
+    name: Node installieren & Abhängigkeiten
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: SmartBuilders
-
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v3
@@ -24,16 +22,50 @@ jobs:
       - name: Node-Version festlegen
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
           check-latest: true
 
-      - name: Abhängigkeiten installieren (npm ci)
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Abhängigkeiten installieren
         run: npm ci
 
-      - name: Sicherheitsprüfung (npm audit)
+  audit:
+    name: Sicherheitsprüfung (npm audit)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SmartBuilders
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - name: Node-Version festlegen
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Sicherheitsprüfung
         run: npm audit --audit-level=high
 
-      - name: Linting durchführen
+  lint:
+    name: Linting
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SmartBuilders
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - name: Node-Version festlegen
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Lint ausführen
         run: |
           if npm run | grep -q "lint"; then
             npm run lint
@@ -41,6 +73,19 @@ jobs:
             echo "Kein Lint-Script definiert – übersprungen"
           fi
 
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SmartBuilders
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - name: Node-Version festlegen
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
       - name: Tests ausführen
         run: |
           if npm run | grep -q "test"; then
@@ -49,7 +94,16 @@ jobs:
             echo "Keine Tests definiert – übersprungen"
           fi
 
-      - name: Prüfen, ob package-lock.json geändert wurde
+  lockfile-check:
+    name: Prüfen package-lock.json
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SmartBuilders
+    needs: install
+    steps:
+      - uses: actions/checkout@v3
+      - name: Prüfen package-lock.json
         run: |
           if git diff --name-only HEAD~1 HEAD | grep -q "package-lock.json"; then
             echo "Hinweis: package-lock.json geändert – wird im Review geprüft."
