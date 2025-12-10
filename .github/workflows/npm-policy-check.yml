@@ -44,6 +44,8 @@ jobs:
         run: npm ci --include=dev
         env:
           NODE_ENV: development
+      - name: Prüfen node_modules/.bin
+        run: ls -la node_modules/.bin
 
   audit:
     name: Sicherheitsprüfung (npm audit)
