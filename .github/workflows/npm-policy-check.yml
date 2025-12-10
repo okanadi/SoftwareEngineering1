@@ -16,50 +16,22 @@ on:
       - SmartBuilders/**  
 
 jobs:
-  install:
-    name: Node installieren & Abhängigkeiten
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: SmartBuilders
-    steps:
-      - name: Repository auschecken
-        uses: actions/checkout@v3
-
-      - name: Node-Version festlegen
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-          check-latest: true
-
-      - name: Cache Node Modules
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Abhängigkeiten installieren
-        run: npm ci --include=dev
-        env:
-          NODE_ENV: development
-      - name: Prüfen node_modules/.bin
-        run: ls -la node_modules/.bin
-
   audit:
     name: Sicherheitsprüfung (npm audit)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: SmartBuilders
-    needs: install
     steps:
       - uses: actions/checkout@v3
       - name: Node-Version festlegen
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Abhängigkeiten installieren
+        run: npm ci --include=dev
+        env:
+          NODE_ENV: development
       - name: Sicherheitsprüfung
         run: npm audit --audit-level=high
         env:
@@ -71,13 +43,16 @@ jobs:
     defaults:
       run:
         working-directory: SmartBuilders
-    needs: install
     steps:
       - uses: actions/checkout@v3
       - name: Node-Version festlegen
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Abhängigkeiten installieren
+        run: npm ci --include=dev
+        env:
+          NODE_ENV: development
       - name: Lint ausführen
         run: |
           if npm run | grep -q "lint"; then
@@ -94,13 +69,16 @@ jobs:
     defaults:
       run:
         working-directory: SmartBuilders
-    needs: install
     steps:
       - uses: actions/checkout@v3
       - name: Node-Version festlegen
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Abhängigkeiten installieren
+        run: npm ci --include=dev
+        env:
+          NODE_ENV: development
       - name: Tests ausführen
         run: |
           if npm run | grep -q "test"; then
@@ -117,7 +95,6 @@ jobs:
     defaults:
       run:
         working-directory: SmartBuilders
-    needs: install
     steps:
       - uses: actions/checkout@v3
       - name: Prüfen package-lock.json
