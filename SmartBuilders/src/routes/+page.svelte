@@ -9,7 +9,7 @@
 <main class="container mx-auto p-4 pt-24 md:pt-32 lg:pt-40">
   <h1 class="text-5xl font-bold mb-4">Willkommen bei SmartBuilders!</h1>
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto p-10">
-  <!-- CARD 1 -->
+
   <Card
     title="Organisiere jetzt deine Projekte!"
     buttons={[
@@ -21,14 +21,12 @@
     onArrowClick={() => console.log("Weiter")}
   />
 
-  <!-- CARD 2 -->
   <Card
     title="Gehe direkt zum Projekt!"
     inputPlaceholder="Projekt-ID"
     onArrowClick={() => console.log("Gehe zum Projekt")}
   />
 
-  <!-- CARD 3 -->
   <Card
     title="Erstelle ein neues Projekt!"
     inputPlaceholder="Projekt-ID"
