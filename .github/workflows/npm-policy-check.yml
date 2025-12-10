@@ -1,6 +1,13 @@
 name: NPM Policy Check
 
 on:
+  push:
+    branches:
+      - main
+      - develop
+      - frontend
+    paths:
+      - SmartBuilders/**
   pull_request:
     branches:
       - main
@@ -34,7 +41,9 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Abhängigkeiten installieren
-        run: npm ci
+        run: npm ci --include=dev
+        env:
+          NODE_ENV: development
 
   audit:
     name: Sicherheitsprüfung (npm audit)
@@ -51,6 +60,8 @@ jobs:
           node-version: '20'
       - name: Sicherheitsprüfung
         run: npm audit --audit-level=high
+        env:
+          NODE_ENV: development
 
   lint:
     name: Linting
@@ -95,6 +106,8 @@ jobs:
           else
             echo "Keine Tests definiert – übersprungen"
           fi
+        env:
+          NODE_ENV: development
 
   lockfile-check:
     name: Prüfen package-lock.json
