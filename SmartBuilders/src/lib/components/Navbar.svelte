@@ -1,6 +1,8 @@
-<script>
+<script lang="ts">
   import { onMount } from 'svelte';
   import logo from '$lib/assets/smartbuilders-logo.svg';
+  import { goto } from '$app/navigation';
+  
   let menuOpen = false;
 
   function toggleMenu() {
@@ -8,28 +10,32 @@
   }
 
   function handleSignIn() {
-    console.log('Sign In clicked');
+    goto('/signin');
   }
 
   function handleSignUp() {
-    console.log('Sign Up clicked');
+    goto('/signup');
+  }
+  function handleHome() {
+    goto('/');
   }
 </script>
 
-<nav class="fixed top-0 left-0 w-full z-50 h-22 md:h-30 lg:h-38 flex items-center border-white/30 bg-white/5 backdrop-blur-md 
-         shadow-xl">
+<nav class="fixed top-0 left-0 w-full z-50 h-20 md:h-24 lg:h-28 flex items-center p-10 rounded-3xl border border-white/30 bg-white/5 backdrop-blur-md">
   <div class="container mx-auto flex items-center justify-between p-4">
     <!-- Logo -->
     <div class="text-xl font-bold flex items-center">
-      <img src={logo} alt="Logo" class="h-20 w-20 md:h-28 md:w-28 lg:h-32 lg:w-32 mr-20" />
+      <button on:click={handleHome} class="p-0 bg-transparent border-0">
+        <img src={logo} alt="Logo" class="h-16 w-16 md:h-19 md:w-19 lg:h-20 lg:w-20 mr-10" />
+      </button>
     </div>
 
     <!-- Desktop Buttons -->
     <div class="hidden md:flex space-x-4">
-      <button on:click={handleSignIn} class="bg-white/30 hover:bg-white/40 transition px-4 py-2 rounded">
+      <button on:click={handleSignIn} class="bg-gray-700 hover:bg-gray-500 transition px-4 py-1 rounded">
         Sign In
       </button>
-      <button on:click={handleSignUp} class="bg-white/10 hover:bg-white/20 transition px-4 py-2 rounded">
+      <button on:click={handleSignUp} class="bg-gray-900 hover:bg-gray-700 transition px-4 py-1 rounded">
         Sign Up
       </button>
     </div>
