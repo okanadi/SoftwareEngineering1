@@ -72,6 +72,8 @@ jobs:
           else
             echo "Kein Lint-Script definiert – übersprungen"
           fi
+        env:
+          NODE_ENV: development
 
   test:
     name: Tests
