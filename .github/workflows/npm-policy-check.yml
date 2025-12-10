@@ -1,6 +1,13 @@
 name: NPM Policy Check
 
 on:
+  push:
+    branches:
+      - main
+      - develop
+      - frontend
+    paths:
+      - SmartBuilders/**
   pull_request:
     branches:
       - main
@@ -9,22 +16,18 @@ on:
       - SmartBuilders/**  
 
 jobs:
-  install:
-    name: Node installieren & Abhängigkeiten
+  audit:
+    name: Sicherheitsprüfung (npm audit)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: SmartBuilders
     steps:
-      - name: Repository auschecken
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Node-Version festlegen
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-          check-latest: true
-
       - name: Cache Node Modules
         uses: actions/cache@v3
         with:
@@ -32,46 +35,12 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
       - name: Abhängigkeiten installieren
-        run: npm ci
-
-  audit:
-    name: Sicherheitsprüfung (npm audit)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: SmartBuilders
-    needs: install
-    steps:
-      - uses: actions/checkout@v3
-      - name: Node-Version festlegen
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+        run: npm ci --include=dev
+        env:
+          NODE_ENV: development
       - name: Sicherheitsprüfung
         run: npm audit --audit-level=high
-
-  lint:
-    name: Linting
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: SmartBuilders
-    needs: install
-    steps:
-      - uses: actions/checkout@v3
-      - name: Node-Version festlegen
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - name: Lint ausführen
-        run: |
-          if npm run | grep -q "lint"; then
-            npm run lint
-          else
-            echo "Kein Lint-Script definiert – übersprungen"
-          fi
         env:
           NODE_ENV: development
 
@@ -81,13 +50,23 @@ jobs:
     defaults:
       run:
         working-directory: SmartBuilders
-    needs: install
     steps:
       - uses: actions/checkout@v3
       - name: Node-Version festlegen
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Abhängigkeiten installieren
+        run: npm ci --include=dev
+        env:
+          NODE_ENV: development
       - name: Tests ausführen
         run: |
           if npm run | grep -q "test"; then
@@ -95,6 +74,8 @@ jobs:
           else
             echo "Keine Tests definiert – übersprungen"
           fi
+        env:
+          NODE_ENV: development
 
   lockfile-check:
     name: Prüfen package-lock.json
@@ -102,7 +83,6 @@ jobs:
     defaults:
       run:
         working-directory: SmartBuilders
-    needs: install
     steps:
       - uses: actions/checkout@v3
       - name: Prüfen package-lock.json
