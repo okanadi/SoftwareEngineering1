@@ -20,11 +20,13 @@
     onButtonClick={handleRole}
     onArrowClick={() => console.log("Weiter")}
   />
+  
   <Card
     title="Gehe direkt zum Projekt!"
     inputPlaceholder="Projekt-ID"
     onArrowClick={() => console.log("Gehe zum Projekt")}
   />
+
   <Card
     title="Erstelle ein neues Projekt!"
     inputPlaceholder="Projekt-ID"

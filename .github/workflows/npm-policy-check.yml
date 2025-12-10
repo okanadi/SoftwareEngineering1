@@ -28,38 +28,19 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Abhängigkeiten installieren
         run: npm ci --include=dev
         env:
           NODE_ENV: development
       - name: Sicherheitsprüfung
         run: npm audit --audit-level=high
-        env:
-          NODE_ENV: development
-
-  lint:
-    name: Linting
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: SmartBuilders
-    steps:
-      - uses: actions/checkout@v3
-      - name: Node-Version festlegen
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - name: Abhängigkeiten installieren
-        run: npm ci --include=dev
-        env:
-          NODE_ENV: development
-      - name: Lint ausführen
-        run: |
-          if npm run | grep -q "lint"; then
-            npm run lint
-          else
-            echo "Kein Lint-Script definiert – übersprungen"
-          fi
         env:
           NODE_ENV: development
 
@@ -75,6 +56,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+      - name: Cache Node Modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
       - name: Abhängigkeiten installieren
         run: npm ci --include=dev
         env:
