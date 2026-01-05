@@ -1,0 +1,48 @@
+services:
+  # === Datenbank Service ===
+  db:
+    image: postgres:16-alpine
+    container_name: smart_builders_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      # 1. Daten-Persistenz: Speichert DB-Daten lokal auf dem Server/Rechner
+      - ./postgres_data:/var/lib/postgresql/data
+      
+      # 2. Initialisierung: Führt beim ersten Start das SQL-Skript aus
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - sb_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # === Backend Service (Platzhalter) ===
+  # app:
+  #   build: .
+  #   container_name: smart_builders_app
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     DATABASE_URL: "postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?sslmode=disable"
+  #     AWS_REGION: "${AWS_REGION}"
+  #     AWS_BUCKET_NAME: "${AWS_BUCKET_NAME}"
+  #     AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+  #     AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+  #     AWS_SESSION_TOKEN: "${AWS_SESSION_TOKEN}" # Nur für AWS Educate nötig
+  #   networks:
+  #     - sb_network
+
+networks:
+  sb_network:
+    driver: bridge
