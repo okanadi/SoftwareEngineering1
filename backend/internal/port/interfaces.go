@@ -1,10 +1,9 @@
 package port
 
 import (
+	"backend/internal/domain"
 	"context"
 	"io"
-	
-	"github.com/deinuser/smart-builders/internal/domain"
 )
 
 type ProjectRepository interface {

@@ -1,16 +1,15 @@
 package main
 
 import (
+	"backend/internal/adapter"
+	"backend/internal/service"
+	"backend/internal/web"
 	"context"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/deinuser/smart-builders/internal/adapter"
-	"github.com/deinuser/smart-builders/internal/service"
-	"github.com/deinuser/smart-builders/internal/web"
-	
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib" // Postgres Driver
@@ -26,7 +25,7 @@ func main() {
 	if os.Getenv("GO_ENV") == "local" {
 		dbHost = "localhost" // Für lokales Testen ohne Docker Network
 	}
-	
+
 	bucketName := os.Getenv("AWS_BUCKET_NAME")
 	awsRegion := os.Getenv("AWS_REGION")
 

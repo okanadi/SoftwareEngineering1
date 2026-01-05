@@ -15,7 +15,7 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
       
       # 2. Initialisierung: Führt beim ersten Start das SQL-Skript aus
-      - ./migrations:/docker-entrypoint-initdb.d
+      - ./db_init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - sb_network
     healthcheck:

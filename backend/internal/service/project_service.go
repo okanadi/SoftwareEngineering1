@@ -1,11 +1,10 @@
 package service
 
 import (
+	"backend/internal/domain"
+	"backend/internal/port"
 	"context"
 	"fmt"
-
-	"github.com/deinuser/smart-builders/internal/domain"
-	"github.com/deinuser/smart-builders/internal/port"
 )
 
 type ProjectService struct {

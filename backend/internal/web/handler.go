@@ -1,11 +1,11 @@
 package web
 
 import (
+	"backend/internal/domain"
+	"backend/internal/service"
 	"encoding/json"
 	"net/http"
 
-	"github.com/deinuser/smart-builders/internal/domain"
-	"github.com/deinuser/smart-builders/internal/service"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -43,7 +43,7 @@ func (h *ProjectHandler) HandleGetSteps(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "Fehler beim Laden der Schritte", http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(steps)
 }
@@ -60,7 +60,7 @@ func (h *ProjectHandler) HandleUpdateStep(w http.ResponseWriter, r *http.Request
 		NewStatus: r.FormValue("status"), // MUSS übereinstimmen mit DB Enum: in_arbeit, problem, ...
 		Note:      r.FormValue("note"),
 		// TODO: Hier später UserID aus JWT Token holen
-		UserID:    "", // Bleibt leer -> wird NULL in DB
+		UserID: "", // Bleibt leer -> wird NULL in DB
 	}
 
 	// Datei lesen

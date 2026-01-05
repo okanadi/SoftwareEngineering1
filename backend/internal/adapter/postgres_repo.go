@@ -1,11 +1,11 @@
 package adapter
 
 import (
+	"backend/internal/domain"
+	"backend/internal/port"
 	"context"
 	"fmt"
 
-	"github.com/deinuser/smart-builders/internal/domain"
-	"github.com/deinuser/smart-builders/internal/port"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -46,13 +46,13 @@ func (r *PostgresRepo) AddHistoryEntry(ctx context.Context, stepID string, userI
 		INSERT INTO project_history (step_id, user_id, new_status, note)
 		VALUES ($1, $2, $3, $4)
 		RETURNING id`
-	
+
 	// Falls userID leer ist (z.B. Test), setzen wir NULL
 	var uid *string
 	if userID != "" {
 		uid = &userID
 	}
-	
+
 	err = tx.QueryRowContext(ctx, queryHistory, stepID, uid, status, note).Scan(&historyID)
 	if err != nil {
 		return fmt.Errorf("insert history failed: %w", err)
