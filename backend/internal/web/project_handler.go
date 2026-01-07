@@ -42,3 +42,13 @@ func (h *ProjectHandler) HandleCreateProject(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
 }
+
+func (h *ProjectHandler) HandleGetAllProjects(w http.ResponseWriter, r *http.Request) {
+	projects, err := h.service.GetAllProjects(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(projects)
+}

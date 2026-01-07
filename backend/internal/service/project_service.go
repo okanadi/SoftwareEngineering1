@@ -23,3 +23,7 @@ func (s *ProjectService) CreateProject(ctx context.Context, input domain.CreateP
 
 	return s.repo.CreateProject(ctx, &input)
 }
+
+func (s *ProjectService) GetAllProjects(ctx context.Context) ([]domain.ProjectDB, error) {
+	return s.repo.GetAllProjects(ctx)
+}

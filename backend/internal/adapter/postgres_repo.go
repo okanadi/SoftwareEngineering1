@@ -81,3 +81,17 @@ func (r *PostgresRepo) CreateProject(ctx context.Context, project *domain.Create
 
 	return newID, nil
 }
+
+func (r *PostgresRepo) GetAllProjects(ctx context.Context) ([]domain.ProjectDB, error) {
+	query := `
+		SELECT *
+		FROM projects
+		ORDER BY created_at DESC
+	`
+	var projects []domain.ProjectDB
+	err := r.db.SelectContext(ctx, &projects, query)
+	if err != nil {
+		return nil, fmt.Errorf("Get all projects failed: %w", err)
+	}
+	return projects, nil
+}

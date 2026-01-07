@@ -13,6 +13,7 @@ type CreateProjectDTO struct {
 	Description      string `json:"description"`
 	StartDate        string `json:"start_date"`
 	EndDate          string `json:"end_date"`
+	//progress wird initial im Repo auf 'geplant' gesetzt
 }
 
 type ProjectDB struct {
@@ -20,7 +21,9 @@ type ProjectDB struct {
 	ManagerID        uuid.UUID  `db:"manager_id" json:"manager_id"`
 	CustomerLastname string     `db:"customer_lastname" json:"customer_lastname"`
 	Address          string     `db:"address" json:"address"`
+	Description      string     `db:"description" json:"description"`
 	StartDate        *time.Time `db:"start_date" json:"start_date"`
 	EndDate          *time.Time `db:"end_date" json:"end_date"`
 	Progress         string     `db:"progress" json:"progress"`
+	CreatedAt        *time.Time `db:"created_at" json:"created_at"`
 }
