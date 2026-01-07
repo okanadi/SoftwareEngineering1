@@ -17,14 +17,18 @@ import (
 )
 
 func main() {
-	// 1. Umgebungsvariablen laden
-	dbUser := os.Getenv("DB_USER")
-	dbPass := os.Getenv("DB_PASSWORD")
-	dbName := os.Getenv("DB_NAME")
-	dbHost := "db" // Im Docker Container heißt der Host "db"
-	if os.Getenv("GO_ENV") == "local" {
-		dbHost = "localhost" // Für lokales Testen ohne Docker Network
-	}
+
+	// dbUser := os.Getenv("DB_USER")
+	// dbPass := os.Getenv("DB_PASSWORD")
+	// dbName := os.Getenv("DB_NAME")
+	//dbHost := "db" // Im Docker Container heißt der Host "db"
+
+	//Für Entwicklung lokal
+	dbUser := "smart_admin"
+	dbPass := "smart_secret_password"
+	dbName := "smart_builders_db"
+
+	dbHost := "localhost"
 
 	bucketName := os.Getenv("AWS_BUCKET_NAME")
 	awsRegion := os.Getenv("AWS_REGION")
@@ -46,8 +50,10 @@ func main() {
 
 	// 4. Wiring (Dependency Injection)
 	repo := adapter.NewPostgresRepo(db)
-	svc := service.NewProjectService(repo, s3Storage)
-	handler := web.NewProjectHandler(svc)
+
+	userService := service.NewUserService(repo, s3Storage)
+	projectService := service.NewProjectService(repo, s3Storage)
+	// handler := web.NewProjectHandler(svc)
 
 	// 5. Router Setup
 	r := chi.NewRouter()
@@ -68,15 +74,17 @@ func main() {
 		})
 	})
 
-	// API Routen
-	r.Route("/api/v1", func(r chi.Router) {
-		r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("Smart Builders API is running!"))
-		})
+	//Handlers
+	userHandler := web.NewUserHandler(userService)
+	projectHandler := web.NewProjectHandler(projectService)
 
-		r.Post("/customer/login", handler.HandleCustomerLogin)
-		r.Get("/projects/{id}/steps", handler.HandleGetSteps)
-		r.Post("/steps/{id}/update", handler.HandleUpdateStep)
+	//Routes
+	r.Route("/api/v1", func(r chi.Router) {
+		//User routes
+		r.Post("/users/create", userHandler.HandleCreateUser)
+
+		//Project routes
+		r.Post("/projects/create", projectHandler.HandleCreateProject)
 	})
 
 	log.Println("Server startet auf :8080")

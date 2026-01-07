@@ -23,19 +23,14 @@ CREATE TABLE IF NOT EXISTS users (
 -- 2. PROJECTS
 -- ==========================================
 CREATE TABLE IF NOT EXISTS projects (
-    -- ID ist gleichzeitig Auftragsnummer (UUID)
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    
-    -- Interner Verantwortlicher
     manager_id UUID REFERENCES users(id),
-    
-    -- Kunde loggt sich mit ID (Auftragsnr) + Nachname ein
     customer_lastname TEXT NOT NULL,
-    
     address TEXT NOT NULL,
+    description TEXT,
     start_date DATE,
     end_date DATE,
-    progress TEXT DEFAULT 'geplant', -- Gesamtstatus Text
+    progress TEXT DEFAULT 'geplant',
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

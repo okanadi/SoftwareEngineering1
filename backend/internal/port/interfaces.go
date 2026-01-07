@@ -7,10 +7,12 @@ import (
 )
 
 type ProjectRepository interface {
-	GetProjectByLogin(ctx context.Context, id string, lastname string) (*domain.Project, error)
-	GetStepsByProjectID(ctx context.Context, projectID string) ([]domain.ProjectStep, error)
-	// AddHistoryEntry speichert Update + Media + aktualisiert Step-Status in EINER Transaktion
-	AddHistoryEntry(ctx context.Context, stepID string, userID string, status string, note string, s3Key string, fileType string) error
+
+	//ProjectHandler
+	CreateProject(ctx context.Context, project *domain.CreateProjectDTO) (string, error)
+
+	//UserHandler
+	CreateUser(ctx context.Context, user *domain.CreateUserDTO) (string, error)
 }
 
 type FileStorage interface {
