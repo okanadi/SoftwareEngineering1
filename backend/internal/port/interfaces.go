@@ -7,14 +7,17 @@ import (
 )
 
 type ProjectRepository interface {
+	//UserHandler
+	CreateUser(ctx context.Context, user *domain.CreateUserDTO) (string, error)
 
 	//ProjectHandler
 	CreateProject(ctx context.Context, project *domain.CreateProjectDTO) (string, error)
 
 	GetAllProjects(ctx context.Context) ([]domain.ProjectDB, error)
 
-	//UserHandler
-	CreateUser(ctx context.Context, user *domain.CreateUserDTO) (string, error)
+	//ProjectStepHandler
+	CreateProjectStep(ctx context.Context, step *domain.CreateProjectStepDTO) (string, error)
+	GetStepsProjectByProjectID(ctx context.Context, projectID string) ([]domain.ProjectStepDB, error)
 }
 
 type FileStorage interface {

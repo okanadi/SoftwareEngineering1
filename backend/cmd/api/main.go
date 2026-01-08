@@ -53,6 +53,7 @@ func main() {
 
 	userService := service.NewUserService(repo, s3Storage)
 	projectService := service.NewProjectService(repo, s3Storage)
+	projectStepService := service.NewProjectStepService(repo, s3Storage)
 	// handler := web.NewProjectHandler(svc)
 
 	// 5. Router Setup
@@ -86,6 +87,10 @@ func main() {
 		//Project routes
 		r.Post("/projects/create", projectHandler.HandleCreateProject)
 		r.Get("/projects/getAll", projectHandler.HandleGetAllProjects)
+
+		//ProjectStep routes
+		r.Post("/project-steps/create", web.NewProjectStepHandler(projectStepService).HandleCreateProjectStep)
+		r.Get("/project-steps/{projectID}", web.NewProjectStepHandler(projectStepService).HandleGetProjectSteps)
 	})
 
 	log.Println("Server startet auf :8080")

@@ -14,6 +14,7 @@ type CreateProjectDTO struct {
 	StartDate        string `json:"start_date"`
 	EndDate          string `json:"end_date"`
 	//progress wird initial im Repo auf 'geplant' gesetzt
+	//CreatedAt wird automatisch gesetzt
 }
 
 type ProjectDB struct {

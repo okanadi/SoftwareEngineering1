@@ -95,3 +95,47 @@ func (r *PostgresRepo) GetAllProjects(ctx context.Context) ([]domain.ProjectDB, 
 	}
 	return projects, nil
 }
+
+// Project Step
+func (r *PostgresRepo) CreateProjectStep(ctx context.Context, step *domain.CreateProjectStepDTO) (string, error) {
+	query := `
+		INSERT INTO project_steps (project_id, title, description, start_date, end_date, progress)
+		VALUES ($1, $2, $3, $4, $5, 'geplant')
+		RETURNING id
+	`
+	var start, end *string
+	if step.StartDate != "" {
+		start = &step.StartDate
+	}
+	if step.EndDate != "" {
+		end = &step.EndDate
+	}
+	var newID string
+	err := r.db.QueryRowContext(ctx, query,
+		step.ProjectID,
+		step.Title,
+		step.Description,
+		start,
+		end,
+	).Scan(&newID)
+	if err != nil {
+		return "", fmt.Errorf("create project step failed: %w", err)
+	}
+
+	return newID, nil
+}
+
+func (r *PostgresRepo) GetStepsProjectByProjectID(ctx context.Context, projectID string) ([]domain.ProjectStepDB, error) {
+	query := `
+		SELECT *
+		FROM project_steps
+		WHERE project_id = $1
+		ORDER BY created_at DESC
+	`
+	var steps []domain.ProjectStepDB
+	err := r.db.SelectContext(ctx, &steps, query, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("Get steps by project ID failed: %w", err)
+	}
+	return steps, nil
+}
