@@ -139,3 +139,85 @@ func (r *PostgresRepo) GetStepsProjectByProjectID(ctx context.Context, projectID
 	}
 	return steps, nil
 }
+func (r *PostgresRepo) GetProjectByID(ctx context.Context, projectID string) (*domain.ProjectDB, error) {
+	query := `
+		SELECT *
+		FROM projects
+		WHERE id = $1
+	`
+
+	var project domain.ProjectDB
+	err := r.db.GetContext(ctx, &project, query, projectID)
+
+	if err != nil {
+		return nil, fmt.Errorf("Get project by ID failed: %w", err)
+	}
+
+	return &project, nil
+}
+
+func (r *PostgresRepo) GetProjectByCustomerLastname(ctx context.Context, lastname string) ([]domain.ProjectDB, error) {
+	query := `
+		SELECT *
+		FROM projects
+		WHERE customer_lastname ILIKE $1
+		ORDER BY created_at DESC
+	`
+
+	var projects []domain.ProjectDB
+	err := r.db.SelectContext(ctx, &projects, query, "%"+lastname+"%")
+
+	if err != nil {
+		return nil, fmt.Errorf("Get project by customer lastname failed: %w", err)
+	}
+
+	return projects, nil
+}
+
+func (r *PostgresRepo) GetProjectByAddress(ctx context.Context, address string) ([]domain.ProjectDB, error) {
+	query := `
+		SELECT *
+		FROM projects
+		WHERE address ILIKE $1
+		ORDER BY created_at DESC
+	`
+
+	var projects []domain.ProjectDB
+	err := r.db.SelectContext(ctx, &projects, query, "%"+address+"%")
+
+	if err != nil {
+		return nil, fmt.Errorf("Get project by address failed: %w", err)
+	}
+
+	return projects, nil
+}
+
+func (r *PostgresRepo) GetAllCustomerLastnames(ctx context.Context) ([]string, error) {
+	query := `
+		SELECT DISTINCT customer_lastname
+		FROM projects
+		ORDER BY customer_lastname
+	`
+
+	var lastnames []string
+	err := r.db.SelectContext(ctx, &lastnames, query)
+	if err != nil {
+		return nil, fmt.Errorf("Get all customer lastnames failed: %w", err)
+	}
+	return lastnames, nil
+}
+
+func (r *PostgresRepo) GetAllAddresses(ctx context.Context) ([]string, error) {
+	query := `
+		SELECT DISTINCT address
+		FROM projects
+		ORDER BY address
+	`
+
+	var addresses []string
+	err := r.db.SelectContext(ctx, &addresses, query)
+	if err != nil {
+		return nil, fmt.Errorf("Get all addresses failed: %w", err)
+	}
+	return addresses, nil
+}

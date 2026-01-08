@@ -52,3 +52,59 @@ func (h *ProjectHandler) HandleGetAllProjects(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(projects)
 }
+
+func (h *ProjectHandler) HandleGetProjectByID(w http.ResponseWriter, r *http.Request) {
+	projectID := path.Base(r.URL.Path)
+	
+	project, err := h.service.GetProjectByID(r.Context(), projectID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(project)
+}
+
+func (h *ProjectHandler) HandleGetProjectByCustomerLastname(w http.ResponseWriter, r *http.Request) {
+	lastname := path.Base(r.URL.Path)
+	
+	projects, err := h.service.GetProjectByCustomerLastname(r.Context(), lastname)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(projects)
+}
+
+func (h *ProjectHandler) HandleGetProjectByAddress(w http.ResponseWriter, r *http.Request) {
+	address := path.Base(r.URL.Path)
+
+	projects, err := h.service.GetProjectByAddress(r.Context(), address)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(projects)
+}
+
+func (h *ProjectHandler) HandleGetAllCustomerLastnames(w http.ResponseWriter, r *http.Request) {
+	lastnames, err := h.service.GetAllCustomerLastnames(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(lastnames)
+}
+
+func (h *ProjectHandler) HandleGetAllAddresses(w http.ResponseWriter, r *http.Request) {
+	addresses, err := h.service.GetAllAddresses(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(addresses)
+}
