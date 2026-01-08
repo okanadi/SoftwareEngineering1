@@ -86,6 +86,11 @@ func main() {
 		//Project routes
 		r.Post("/projects/create", projectHandler.HandleCreateProject)
 		r.Get("/projects/getAll", projectHandler.HandleGetAllProjects)
+		r.Get("/projects/getByID/{id}", projectHandler.HandleGetProjectByID)
+		r.Get("/projects/getByCustomerLastname/{lastname}", projectHandler.HandleGetProjectByCustomerLastname)
+		r.Get("/projects/getByAddress/{address}", projectHandler.HandleGetProjectByAddress)
+		r.Get("/projects/getAllCustomerLastnames", projectHandler.HandleGetAllCustomerLastnames)
+		r.Get("/projects/getAllAddresses", projectHandler.HandleGetAllAddresses)
 	})
 
 	log.Println("Server startet auf :8080")
