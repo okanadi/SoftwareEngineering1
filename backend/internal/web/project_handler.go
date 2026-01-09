@@ -5,6 +5,7 @@ import (
 	"backend/internal/service"
 	"encoding/json"
 	"net/http"
+	"path"
 )
 
 type ProjectHandler struct {
@@ -55,7 +56,7 @@ func (h *ProjectHandler) HandleGetAllProjects(w http.ResponseWriter, r *http.Req
 
 func (h *ProjectHandler) HandleGetProjectByID(w http.ResponseWriter, r *http.Request) {
 	projectID := path.Base(r.URL.Path)
-	
+
 	project, err := h.service.GetProjectByID(r.Context(), projectID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -67,7 +68,7 @@ func (h *ProjectHandler) HandleGetProjectByID(w http.ResponseWriter, r *http.Req
 
 func (h *ProjectHandler) HandleGetProjectByCustomerLastname(w http.ResponseWriter, r *http.Request) {
 	lastname := path.Base(r.URL.Path)
-	
+
 	projects, err := h.service.GetProjectByCustomerLastname(r.Context(), lastname)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
