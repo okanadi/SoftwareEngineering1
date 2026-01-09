@@ -21,6 +21,11 @@ type CreateUserDTO struct {
 	Role     UserRole `json:"role"`
 }
 
+type UserLoginDTO struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type UserDB struct {
 	ID        uuid.UUID `db:"id"`
 	Name      string    `db:"name"`

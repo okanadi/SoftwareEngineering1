@@ -42,3 +42,23 @@ func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(response)
 }
+
+func (h *UserHandler) HandleUserLogin(w http.ResponseWriter, r *http.Request) {
+	// 1. JSON parsen
+	var input domain.UserLoginDTO
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Ungültiges JSON Format", http.StatusBadRequest)
+		return
+	}
+
+	// 2. Service aufrufen
+	user, err := h.service.UserLogin(r.Context(), input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	// 3. Antwort senden
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}

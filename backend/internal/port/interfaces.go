@@ -9,6 +9,7 @@ import (
 type ProjectRepository interface {
 	//UserHandler
 	CreateUser(ctx context.Context, user *domain.CreateUserDTO) (string, error)
+	UserLogin(ctx context.Context, input *domain.UserLoginDTO) (*domain.UserDB, error)
 
 	//ProjectHandler
 	CreateProject(ctx context.Context, project *domain.CreateProjectDTO) (string, error)

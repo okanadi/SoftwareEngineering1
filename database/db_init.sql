@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS media (
 -- USERS
 INSERT INTO users (name, email, password, role) VALUES 
     ('Adam Admin', 'admin@firma.de', '$2a$10$xwqHfMlOBReRFTBbUc8lk.p/xW/u2yLUOEHL9xOeweedQwZ13w4y.', 'admin'),
-    ('Inga Innendienst', 'buero@firma.de', '$2a$10$xwqHfMlOBReRFTBbUc8lk.p/xW/u2yLUOEHL9xOeweedQwZ13w4y.', 'innendienst'),
+    ('Inga Innendienst', 'inga@firma.de', '$2a$10$xwqHfMlOBReRFTBbUc8lk.p/xW/u2yLUOEHL9xOeweedQwZ13w4y.', 'innendienst'),
     ('Hans Handwerker', 'hans@firma.de', '$2a$10$xwqHfMlOBReRFTBbUc8lk.p/xW/u2yLUOEHL9xOeweedQwZ13w4y.', 'handwerker'),
     ('Franz Fliese', 'franz@firma.de', '$2a$10$xwqHfMlOBReRFTBbUc8lk.p/xW/u2yLUOEHL9xOeweedQwZ13w4y.', 'handwerker'),
     ('Manni Maler', 'manni@firma.de', '$2a$10$xwqHfMlOBReRFTBbUc8lk.p/xW/u2yLUOEHL9xOeweedQwZ13w4y.', 'handwerker')
@@ -84,9 +84,9 @@ ON CONFLICT (email) DO NOTHING;
 -- PROJECTS (Manager: Inga)
 INSERT INTO projects (manager_id, customer_lastname, address, description, start_date, end_date, progress)
 VALUES 
-    ((SELECT id FROM users WHERE email = 'buero@firma.de'), 'Müller', 'Hauptstraße 10, Berlin', 'Badsanierung', CURRENT_DATE - 5, CURRENT_DATE + 10, 'in_arbeit'),
-    ((SELECT id FROM users WHERE email = 'buero@firma.de'), 'Schmidt', 'Waldweg 5, München', 'Neubau Garage', CURRENT_DATE + 14, CURRENT_DATE + 30, 'geplant'),
-    ((SELECT id FROM users WHERE email = 'buero@firma.de'), 'Weber', 'Hafenstraße 99, Hamburg', 'Rohrbruch Keller', CURRENT_DATE - 2, CURRENT_DATE + 5, 'problem');
+    ((SELECT id FROM users WHERE email = 'inga@firma.de'), 'Müller', 'Hauptstraße 10, Berlin', 'Badsanierung', CURRENT_DATE - 5, CURRENT_DATE + 10, 'in_arbeit'),
+    ((SELECT id FROM users WHERE email = 'inga@firma.de'), 'Schmidt', 'Waldweg 5, München', 'Neubau Garage', CURRENT_DATE + 14, CURRENT_DATE + 30, 'geplant'),
+    ((SELECT id FROM users WHERE email = 'inga@firma.de'), 'Weber', 'Hafenstraße 99, Hamburg', 'Rohrbruch Keller', CURRENT_DATE - 2, CURRENT_DATE + 5, 'problem');
 
 -- STEPS (Für alle 3 Projekte)
 -- Müller Steps

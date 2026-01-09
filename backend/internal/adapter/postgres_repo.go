@@ -49,6 +49,28 @@ func (r *PostgresRepo) CreateUser(ctx context.Context, user *domain.CreateUserDT
 	return newID, nil
 }
 
+func (r *PostgresRepo) UserLogin(ctx context.Context, input *domain.UserLoginDTO) (*domain.UserDB, error) {
+	query := `
+        SELECT *
+        FROM users
+        WHERE email = $1
+    `
+	var user domain.UserDB
+
+	err := r.db.GetContext(ctx, &user, query, input.Email)
+	if err != nil {
+		return nil, fmt.Errorf("Benutzer mit dieser E-Mail nicht gefunden: %w", err)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
+
+	if err != nil {
+		return nil, fmt.Errorf("Falsches Passwort")
+	}
+
+	return &user, nil
+}
+
 // Project
 func (r *PostgresRepo) CreateProject(ctx context.Context, project *domain.CreateProjectDTO) (string, error) {
 	query := `

@@ -83,6 +83,7 @@ func main() {
 	r.Route("/api/v1", func(r chi.Router) {
 		//User routes
 		r.Post("/users/create", userHandler.HandleCreateUser)
+		r.Get("/users/login", userHandler.HandleUserLogin)
 
 		//Project routes
 		r.Post("/projects/create", projectHandler.HandleCreateProject)

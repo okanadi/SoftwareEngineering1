@@ -22,3 +22,10 @@ func (s *UserService) CreateUser(ctx context.Context, input domain.CreateUserDTO
 	}
 	return s.repo.CreateUser(ctx, &input)
 }
+
+func (s *UserService) UserLogin(ctx context.Context, input domain.UserLoginDTO) (*domain.UserDB, error) {
+	if input.Email == "" || input.Password == "" {
+		return nil, fmt.Errorf("Email und Passwort sind Pflichtfelder")
+	}
+	return s.repo.UserLogin(ctx, &input)
+}
