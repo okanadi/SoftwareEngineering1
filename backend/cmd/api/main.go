@@ -5,6 +5,7 @@ import (
 	"backend/internal/service"
 	"backend/internal/web"
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -14,36 +15,44 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib" // Postgres Driver
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	// dbUser := os.Getenv("DB_USER")
-	// dbPass := os.Getenv("DB_PASSWORD")
-	// dbName := os.Getenv("DB_NAME")
-	//dbHost := "db" // Im Docker Container heißt der Host "db"
+	err := godotenv.Load("database/.env")
+	if err != nil {
+		log.Println("Info: Keine .env Datei in 'database/.env' gefunden oder Fehler beim Laden. Nutze System-Umgebungsvariablen.")
+	} else {
+		log.Println("Konfiguration aus database/.env geladen.")
+	}
 
-	//Für Entwicklung lokal
-	dbUser := "smart_admin"
-	dbPass := "smart_secret_password"
-	dbName := "smart_builders_db"
+	// Variablen auslesen (egal ob aus .env oder System-Env)
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
+	dbHost := os.Getenv("DB_HOST") // Lokal: "localhost", Docker: "db"
 
-	dbHost := "localhost"
+	if dbHost == "" {
+		dbHost = "localhost"
+	}
 
-	bucketName := os.Getenv("AWS_BUCKET_NAME")
+	awsBucket := os.Getenv("AWS_BUCKET_NAME")
 	awsRegion := os.Getenv("AWS_REGION")
 
 	// 2. DB Verbindung
-	dsn := "postgres://" + dbUser + ":" + dbPass + "@" + dbHost + ":5432/" + dbName + "?sslmode=disable"
+	// DSN bauen
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:5432/%s?sslmode=require", dbUser, dbPass, dbHost, dbName)
+
 	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
-		log.Fatalf("Konnte DB nicht verbinden (%s): %v", dsn, err)
+		log.Fatalf("Konnte DB nicht verbinden. DSN: postgres://%s:***@%s:5432/%s Error: %v", dbUser, dbHost, dbName, err)
 	}
 	defer db.Close()
-	log.Println("Datenbank verbunden.")
+	log.Println("Datenbank verbunden auf Host:", dbHost)
 
 	// 3. S3 Setup
-	s3Storage, err := adapter.NewS3Storage(context.Background(), bucketName, awsRegion)
+	s3Storage, err := adapter.NewS3Storage(context.Background(), awsBucket, awsRegion)
 	if err != nil {
 		log.Fatalf("Konnte S3 nicht initialisieren: %v", err)
 	}
@@ -54,7 +63,10 @@ func main() {
 	userService := service.NewUserService(repo, s3Storage)
 	projectService := service.NewProjectService(repo, s3Storage)
 	projectStepService := service.NewProjectStepService(repo, s3Storage)
-	// handler := web.NewProjectHandler(svc)
+
+	userHandler := web.NewUserHandler(userService)
+	projectHandler := web.NewProjectHandler(projectService)
+	projectStepHandler := web.NewProjectStepHandler(projectStepService)
 
 	// 5. Router Setup
 	r := chi.NewRouter()
@@ -62,7 +74,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	// CORS (wichtig für Frontend Zugriff)
+	// CORS
 	r.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -75,15 +87,12 @@ func main() {
 		})
 	})
 
-	//Handlers
-	userHandler := web.NewUserHandler(userService)
-	projectHandler := web.NewProjectHandler(projectService)
-
 	//Routes
 	r.Route("/api/v1", func(r chi.Router) {
 		//User routes
 		r.Post("/users/create", userHandler.HandleCreateUser)
 		r.Get("/users/login", userHandler.HandleUserLogin)
+		r.Get("/users/getAll", userHandler.HandleGetAllUsers)
 
 		//Project routes
 		r.Post("/projects/create", projectHandler.HandleCreateProject)
@@ -93,10 +102,13 @@ func main() {
 		r.Get("/projects/getByAddress/{address}", projectHandler.HandleGetProjectByAddress)
 		r.Get("/projects/getAllCustomerLastnames", projectHandler.HandleGetAllCustomerLastnames)
 		r.Get("/projects/getAllAddresses", projectHandler.HandleGetAllAddresses)
+		r.Get("/projects/getByManagerID/{managerID}", projectHandler.HandleGetByManagerID)
 
 		//ProjectStep routes
-		r.Post("/project-steps/create", web.NewProjectStepHandler(projectStepService).HandleCreateProjectStep)
-		r.Get("/project-steps/{projectID}", web.NewProjectStepHandler(projectStepService).HandleGetProjectSteps)
+		r.Post("/project-steps/create", projectStepHandler.HandleCreateProjectStep)
+		r.Get("/project-steps/getAllByProjectID/{projectID}", projectStepHandler.HandleGetProjectSteps)
+		r.Get("/project-steps/getByID/{projectID}/{stepID}", projectStepHandler.HandleGetProjectStepByID)
+		r.Post("/project-steps/updateProgress/{stepID}", projectStepHandler.HandleUpdateStepProgress)
 	})
 
 	log.Println("Server startet auf :8080")

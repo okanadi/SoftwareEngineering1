@@ -34,3 +34,10 @@ type UserDB struct {
 	Role      UserRole  `db:"role"`
 	CreatedAt time.Time `db:"created_at"`
 }
+
+type AllUsersDTO struct {
+	ID    string   `json:"id"`
+	Name  string   `json:"name"`
+	Email string   `json:"email"`
+	Role  UserRole `json:"role"`
+}

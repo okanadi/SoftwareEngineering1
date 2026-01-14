@@ -36,7 +36,7 @@ func (s *ProjectService) GetProjectByID(ctx context.Context, projectID string) (
 	return s.repo.GetProjectByID(ctx, projectID)
 }
 
-func (s*ProjectService) GetProjectByCustomerLastname(ctx context.Context, lastname string) ([]domain.ProjectDB, error) {
+func (s *ProjectService) GetProjectByCustomerLastname(ctx context.Context, lastname string) ([]domain.ProjectDB, error) {
 	if lastname == "" {
 		return nil, fmt.Errorf("Nachname darf nicht leer sein")
 	}
@@ -58,4 +58,8 @@ func (s *ProjectService) GetAllCustomerLastnames(ctx context.Context) ([]string,
 
 func (s *ProjectService) GetAllAddresses(ctx context.Context) ([]string, error) {
 	return s.repo.GetAllAddresses(ctx)
+}
+
+func (s *ProjectService) GetByManagerID(ctx context.Context, managerId string) ([]domain.ProjectDB, error) {
+	return s.repo.GetByManagerID(ctx, managerId)
 }
