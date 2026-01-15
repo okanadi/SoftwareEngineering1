@@ -4,6 +4,9 @@
 	"/project-detail/[id]": [
 		"src/routes/project-detail/[id]/+page.ts"
 	],
+	"/project-detail/[id]/steps": [
+		"src/routes/project-detail/[id]/steps/+page.ts"
+	],
 	"/projects": [],
 	"/signin": [],
 	"/signup": []

@@ -70,7 +70,7 @@
   }
 
   function viewProject(projectId: string) {
-    goto(`/projects/${projectId}`);
+    goto(`/project-detail/${projectId}`);
   }
 </script>
 
@@ -79,7 +79,7 @@
     <h1 class="text-5xl font-bold mb-8 text-white">My Projects</h1>
 
     <!-- Search Bar -->
-    <div class="mb-8 bg-white/10 p-6 rounded-lg">
+    <div class="mb-8 bg-white/5 backdrop-blur-md shadow-xl border border-white/20 p-6 rounded-lg">
       <label for="managerId" class="block text-white mb-2 font-semibold">Manager ID</label>
       <div class="flex gap-2">
         <input
@@ -113,7 +113,7 @@
         {#each projects as project (project.id)}
           <button
             on:click={() => viewProject(project.id)}
-            class="text-left bg-white/10 border border-white/20 rounded-lg p-6 hover:bg-white/20 transition"
+            class="text-left bg-white/5 backdrop-blur-md shadow-xl border border-white/20 rounded-lg p-6 hover:bg-white/20 transition"
           >
             <h3 class="text-xl font-bold text-white mb-2">{project.customer_lastname}</h3>
             <p class="text-white/70 text-sm mb-3">

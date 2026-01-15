@@ -27,27 +27,23 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/company" | "/company/projects" | "/create-project" | "/customer" | "/customer/projects" | "/employee" | "/employee/projects" | "/project-detail" | "/project-detail/[id]" | "/projects" | "/signin" | "/signup";
+		RouteId(): "/" | "/create-project" | "/project-detail" | "/project-detail/[id]" | "/project-detail/[id]/steps" | "/projects" | "/signin" | "/signup";
 		RouteParams(): {
-			"/project-detail/[id]": { id: string }
+			"/project-detail/[id]": { id: string };
+			"/project-detail/[id]/steps": { id: string }
 		};
 		LayoutParams(): {
 			"/": { id?: string };
-			"/company": Record<string, never>;
-			"/company/projects": Record<string, never>;
 			"/create-project": Record<string, never>;
-			"/customer": Record<string, never>;
-			"/customer/projects": Record<string, never>;
-			"/employee": Record<string, never>;
-			"/employee/projects": Record<string, never>;
 			"/project-detail": { id?: string };
 			"/project-detail/[id]": { id: string };
+			"/project-detail/[id]/steps": { id: string };
 			"/projects": Record<string, never>;
 			"/signin": Record<string, never>;
 			"/signup": Record<string, never>
 		};
-		Pathname(): "/" | "/company" | "/company/" | "/company/projects" | "/company/projects/" | "/create-project" | "/create-project/" | "/customer" | "/customer/" | "/customer/projects" | "/customer/projects/" | "/employee" | "/employee/" | "/employee/projects" | "/employee/projects/" | "/project-detail" | "/project-detail/" | `/project-detail/${string}` & {} | `/project-detail/${string}/` & {} | "/projects" | "/projects/" | "/signin" | "/signin/" | "/signup" | "/signup/";
+		Pathname(): "/" | "/create-project" | "/create-project/" | "/project-detail" | "/project-detail/" | `/project-detail/${string}` & {} | `/project-detail/${string}/` & {} | `/project-detail/${string}/steps` & {} | `/project-detail/${string}/steps/` & {} | "/projects" | "/projects/" | "/signin" | "/signin/" | "/signup" | "/signup/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/assets/SmartBuildersBackground.webp" | "/robots.txt" | string & {};
+		Asset(): "/assets/SmartBuildersBackground.webp" | "/assets/SmartBuildersBackgroundGradient.jpg" | "/robots.txt" | string & {};
 	}
 }
