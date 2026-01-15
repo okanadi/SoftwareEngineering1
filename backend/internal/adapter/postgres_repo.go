@@ -71,6 +71,19 @@ func (r *PostgresRepo) UserLogin(ctx context.Context, input *domain.UserLoginDTO
 	return &user, nil
 }
 
+func (r *PostgresRepo) GetAllUsers(ctx context.Context) ([]domain.AllUsersDTO, error) {
+	query := `
+        SELECT id, email, name, role
+        FROM users
+    `
+	var users []domain.AllUsersDTO
+	err := r.db.SelectContext(ctx, &users, query)
+	if err != nil {
+		return nil, fmt.Errorf("Get all users failed: %w", err)
+	}
+	return users, nil
+}
+
 // Project
 func (r *PostgresRepo) CreateProject(ctx context.Context, project *domain.CreateProjectDTO) (string, error) {
 	query := `
@@ -116,6 +129,24 @@ func (r *PostgresRepo) GetAllProjects(ctx context.Context) ([]domain.ProjectDB, 
 		return nil, fmt.Errorf("Get all projects failed: %w", err)
 	}
 	return projects, nil
+}
+
+func (r *PostgresRepo) GetByManagerID(ctx context.Context, managerId string) ([]domain.ProjectDB, error) {
+	query := `
+		SELECT *
+		FROM projects
+		WHERE manager_id = $1
+	`
+
+	var projects []domain.ProjectDB
+	err := r.db.SelectContext(ctx, &projects, query, managerId)
+
+	if err != nil {
+		return nil, fmt.Errorf("Get projects by manager id failed: %w", err)
+	}
+
+	return projects, nil
+
 }
 
 // Project Step
@@ -242,4 +273,95 @@ func (r *PostgresRepo) GetAllAddresses(ctx context.Context) ([]string, error) {
 		return nil, fmt.Errorf("Get all addresses failed: %w", err)
 	}
 	return addresses, nil
+}
+
+func (r *PostgresRepo) CreateProjectHistoryEntry(ctx context.Context, history *domain.HistoryDB) (string, error) {
+	tx, err := r.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return "", fmt.Errorf("Failed to begin transaction: %w", err)
+	}
+
+	defer tx.Rollback()
+
+	var historyID string
+	query := `
+		INSERT INTO project_history (step_id, user_id, new_status, note)
+		VALUES ($1, NULLIF($2, '')::uuid, $3, $4)
+		RETURNING id`
+
+	err = tx.QueryRowContext(ctx, query,
+		history.StepId,
+		history.UserName,
+		history.Status,
+		history.Note,
+	).Scan(&historyID)
+	if err != nil {
+		return "", fmt.Errorf("Create project history entry failed: %w", err)
+	}
+
+	//Hier weitermachen
+	return "", nil
+}
+
+func (r *PostgresRepo) CreateHistoryEntry(ctx context.Context, stepID string, userID string, status string, note string) (string, error) {
+	query := `
+        INSERT INTO project_history (step_id, user_id, new_status, note)
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+    `
+	var historyID string
+	err := r.db.QueryRowContext(ctx, query, stepID, userID, status, note).Scan(&historyID)
+	return historyID, err
+}
+
+func (r *PostgresRepo) CreateMedia(ctx context.Context, historyID string, s3Key string, fileType string) error {
+	query := `INSERT INTO media (history_id, s3_key, file_type) VALUES ($1, $2, $3)`
+	_, err := r.db.ExecContext(ctx, query, historyID, s3Key, fileType)
+	return err
+}
+
+// internal/adapter/postgres_repo.go
+func (r *PostgresRepo) UpdateStepWithHistoryAndMedia(ctx context.Context, stepID, userID, status, note, s3Key, fileType string) error {
+	tx, err := r.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return err
+	}
+
+	// Sicherstellen, dass bei einem Fehler zurückgerollt wird
+	defer tx.Rollback()
+
+	// 1. Projektschritt aktualisieren
+	_, err = tx.ExecContext(ctx, `
+		UPDATE project_steps 
+		SET progress = $1 
+		WHERE id = $2`,
+		status, stepID)
+	if err != nil {
+		return fmt.Errorf("failed to update step status: %w", err)
+	}
+
+	// 2. History-Eintrag schreiben
+	var historyID string
+	err = tx.QueryRowContext(ctx, `
+		INSERT INTO project_history (step_id, user_id, new_status, note)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id`,
+		stepID, userID, status, note).Scan(&historyID)
+	if err != nil {
+		return fmt.Errorf("failed to insert history: %w", err)
+	}
+
+	// 3. Media-Eintrag schreiben (nur wenn ein Bild hochgeladen wurde)
+	if s3Key != "" {
+		_, err = tx.ExecContext(ctx, `
+			INSERT INTO media (history_id, s3_key, file_type)
+			VALUES ($1, $2, $3)`,
+			historyID, s3Key, fileType)
+		if err != nil {
+			return fmt.Errorf("failed to insert media: %w", err)
+		}
+	}
+
+	// 4. Transaktion abschließen
+	return tx.Commit()
 }

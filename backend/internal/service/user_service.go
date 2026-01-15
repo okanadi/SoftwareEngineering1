@@ -29,3 +29,7 @@ func (s *UserService) UserLogin(ctx context.Context, input domain.UserLoginDTO) 
 	}
 	return s.repo.UserLogin(ctx, &input)
 }
+
+func (s *UserService) GetAllUsers(ctx context.Context) ([]domain.AllUsersDTO, error) {
+	return s.repo.GetAllUsers(ctx)
+}

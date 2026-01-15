@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"path"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type ProjectHandler struct {
@@ -108,4 +110,16 @@ func (h *ProjectHandler) HandleGetAllAddresses(w http.ResponseWriter, r *http.Re
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(addresses)
+}
+
+func (h *ProjectHandler) HandleGetByManagerID(w http.ResponseWriter, r *http.Request) {
+	managerID := chi.URLParam(r, "managerID")
+
+	projects, err := h.service.GetByManagerID(r.Context(), managerID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(projects)
 }
