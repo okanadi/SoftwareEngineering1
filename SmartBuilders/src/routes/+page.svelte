@@ -1,8 +1,17 @@
 <script lang="ts">
   import Card from '$lib/components/Card.svelte';
+  import { goto } from '$app/navigation';
 
-  function handleRole(role: String) {
-    console.log("Chosen role:", role);
+  let projectId = '';
+
+  function handleRole(role: string) {
+    if (role === 'kunde') {
+      goto('/customer/projects');
+    } else if (role === 'firma') {
+      goto('/company/projects');
+    } else if (role === 'mitarbeiter') {
+      goto('/employee/projects');
+     }
   }
 </script>
 
@@ -18,19 +27,30 @@
       { label: 'Mitarbeiter', name: 'mitarbeiter' }
     ]}
     onButtonClick={handleRole}
-    onArrowClick={() => console.log("Weiter")}
+          onArrowClick={() => {
+        // The main action is handled by the buttons, but you could
+        // define a default behavior for the arrow as well.
+        // For example, go to a generic projects page if no role is selected.
+        goto('/customer/projects');
+      }}
   />
   
-  <Card
-    title="Gehe direkt zum Projekt!"
-    inputPlaceholder="Projekt-ID"
-    onArrowClick={() => console.log("Gehe zum Projekt")}
-  />
+     <Card
+       title="Gehe direkt zum Projekt!"
+       inputPlaceholder="Projekt-ID"
+      bind:inputValue={projectId}
+      onArrowClick={() => {
+        if (projectId) {
+          goto(`/project-detail/${projectId}`);
+        } else {
+          alert('Please enter a Project ID.');
+        }
+      }}
+     />
 
   <Card
     title="Erstelle ein neues Projekt!"
-    inputPlaceholder="Projekt-ID"
-    onArrowClick={() => console.log("Neues Projekt")}
+    onArrowClick={() => goto('/create-project')}
   />
 </div>
 </main>

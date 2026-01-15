@@ -8,7 +8,7 @@
   export let onButtonClick = (name: string) => {};
   export let onArrowClick = () => {};
 
-  let inputValue = "";
+  export let inputValue = "";
 </script>
 
 <div

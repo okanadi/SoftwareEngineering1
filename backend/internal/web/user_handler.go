@@ -1,0 +1,75 @@
+package web
+
+import (
+	"backend/internal/domain"
+	"backend/internal/service"
+	"encoding/json"
+	"net/http"
+)
+
+type UserHandler struct {
+	service *service.UserService
+}
+
+func NewUserHandler(svc *service.UserService) *UserHandler {
+	return &UserHandler{
+		service: svc,
+	}
+}
+
+func (h *UserHandler) HandleCreateUser(w http.ResponseWriter, r *http.Request) {
+	// 1. JSON parsen
+	var input domain.CreateUserDTO
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Ungültiges JSON Format", http.StatusBadRequest)
+		return
+	}
+
+	// 2. Service aufrufen
+	newID, err := h.service.CreateUser(r.Context(), input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// 3. Antwort senden
+	response := map[string]string{
+		"message": "User erfolgreich angelegt",
+		"id":      newID,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *UserHandler) HandleUserLogin(w http.ResponseWriter, r *http.Request) {
+	// 1. JSON parsen
+	var input domain.UserLoginDTO
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Ungültiges JSON Format", http.StatusBadRequest)
+		return
+	}
+
+	// 2. Service aufrufen
+	user, err := h.service.UserLogin(r.Context(), input)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusUnauthorized)
+		return
+	}
+	// 3. Antwort senden
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}
+
+func (h *UserHandler) HandleGetAllUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.service.GetAllUsers(r.Context())
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(users)
+}
