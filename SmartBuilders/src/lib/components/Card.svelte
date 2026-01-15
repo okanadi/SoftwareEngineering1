@@ -16,7 +16,7 @@
          shadow-xl h-full flex flex-col justify-between text-white"
 >
   <div>
-    <h2 class="text-4xl font-bold leading-tight mb-6">{title}</h2>
+    <h2 class="text-2xl font-bold leading-tight mb-6">{title}</h2>
 
     {#if buttons.length > 0}
       <div class="flex gap-3 flex-wrap mb-8">
