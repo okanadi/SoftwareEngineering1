@@ -1,9 +1,12 @@
 <script lang="ts">
   import type { Field } from '$lib/types';
 
+  export let title: string = ''; 
   export let fields: Field[] = [];
   export let buttons: { label: string; name: string }[] = [];
+  export let submitLabel: string = 'Submit'; 
   export let onSubmit: (values: Record<string, any>) => void = () => {};
+  export let data: Record<string, any> = {}; 
 
   let values: Record<string, any> = {};
 </script>
@@ -47,9 +50,8 @@
       <div class="flex gap-3 mt-4 flex-wrap">
         {#each buttons as btn}
           <button
-            type="button"
+            type="submit"
             class="px-5 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition"
-            on:click={() => onSubmit(values)}
           >
             {btn.label}
           </button>

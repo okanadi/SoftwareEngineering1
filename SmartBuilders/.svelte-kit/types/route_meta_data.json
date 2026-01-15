@@ -10,6 +10,9 @@
 	"/employee/projects": [],
 	"/employee/projects/[id]": [],
 	"/employee/projects/[id]/edit": [],
+	"/project-detail/[id]": [
+		"src/routes/project-detail/[id]/+page.ts"
+	],
 	"/signin": [],
 	"/signup": []
 }
