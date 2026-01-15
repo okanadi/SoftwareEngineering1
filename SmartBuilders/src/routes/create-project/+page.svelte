@@ -37,7 +37,7 @@ async function handleSubmit(values: Record<string, any>) {
 
     console.log("Sending payload:", payload);
 
-    const response = await fetch('http://localhost:8080/api/v1/projects/create', {
+    const response = await fetch('http://13.49.46.226:8080/api/v1/projects/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -1,18 +1,10 @@
 {
 	"/": [],
-	"/company/projects": [],
-	"/company/projects/[id]": [],
-	"/company/projects/[id]/edit": [],
 	"/create-project": [],
-	"/customer/projects": [],
-	"/customer/projects/[id]": [],
-	"/customer/projects/[id]/edit": [],
-	"/employee/projects": [],
-	"/employee/projects/[id]": [],
-	"/employee/projects/[id]/edit": [],
 	"/project-detail/[id]": [
 		"src/routes/project-detail/[id]/+page.ts"
 	],
+	"/projects": [],
 	"/signin": [],
 	"/signup": []
 }
