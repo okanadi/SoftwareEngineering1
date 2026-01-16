@@ -97,20 +97,23 @@ func main() {
 		r.Post("/users/create", userHandler.HandleCreateUser)
 		r.Post("/users/login", userHandler.HandleUserLogin)
 		r.Get("/users/getAll", userHandler.HandleGetAllUsers)
+
 		r.Post("/projects/create", projectHandler.HandleCreateProject)
-		r.Post("/project-steps/create", projectStepHandler.HandleCreateProjectStep)
+		r.Get("/projects/export/{projectID}", projectHandler.HandleExportProjectZip)
 		r.Put("/projects/editProject/{projectID}", projectHandler.HandleUpdateProject)
 		r.Get("/projects/getAll", projectHandler.HandleGetAllProjects)
 		r.Get("/projects/getByID/{id}", projectHandler.HandleGetProjectByID)
 		r.Get("/projects/getAllCustomerLastnames", projectHandler.HandleGetAllCustomerLastnames)
 		r.Get("/projects/getAllAddresses", projectHandler.HandleGetAllAddresses)
 		r.Get("/projects/getByManagerID/{managerID}", projectHandler.HandleGetByManagerID)
-
-		r.Post("/project-steps/updateProgress/{stepID}", projectStepHandler.HandleUpdateStepProgress)
 		r.Get("/projects/getByCustomerLastname/{lastname}", projectHandler.HandleGetProjectByCustomerLastname)
 		r.Get("/projects/getByAddress/{address}", projectHandler.HandleGetProjectByAddress)
+
 		r.Get("/project-steps/getAllByProjectID/{projectID}", projectStepHandler.HandleGetProjectSteps)
 		r.Get("/project-steps/getByID/{projectID}/{stepID}", projectStepHandler.HandleGetProjectStepByID)
+		r.Post("/project-steps/create", projectStepHandler.HandleCreateProjectStep)
+		r.Post("/project-steps/updateProgress/{stepID}", projectStepHandler.HandleUpdateStepProgress)
+
 		r.Get("/history/getHistory/{projectID}", historyHandler.HandleGetHistory)
 
 	})

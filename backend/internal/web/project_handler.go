@@ -142,3 +142,19 @@ func (h *ProjectHandler) HandleUpdateProject(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Projekt erfolgreich aktualisiert"})
 }
+
+func (h *ProjectHandler) HandleExportProjectZip(w http.ResponseWriter, r *http.Request) {
+	projectID := chi.URLParam(r, "projectID")
+	if projectID == "" {
+		http.Error(w, "Projekt-ID fehlt", http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", "attachment; filename=projekt_export_"+projectID+".zip")
+
+	err := h.service.ExportProjectAsZip(r.Context(), projectID, w)
+	if err != nil {
+		return
+	}
+}
