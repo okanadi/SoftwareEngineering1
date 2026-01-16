@@ -2,6 +2,7 @@ package main
 
 import (
 	"backend/internal/adapter"
+	"backend/internal/domain"
 	"backend/internal/service"
 	"backend/internal/web"
 	"context"
@@ -58,15 +59,19 @@ func main() {
 	}
 
 	// 4. Wiring (Dependency Injection)
-	repo := adapter.NewPostgresRepo(db)
+	repo := adapter.NewPostgresRepo(db, s3Storage)
 
 	userService := service.NewUserService(repo, s3Storage)
 	projectService := service.NewProjectService(repo, s3Storage)
 	projectStepService := service.NewProjectStepService(repo, s3Storage)
+	historyService := service.NewHistoryService(repo, s3Storage)
 
 	userHandler := web.NewUserHandler(userService)
 	projectHandler := web.NewProjectHandler(projectService)
 	projectStepHandler := web.NewProjectStepHandler(projectStepService)
+	historyHandler := web.NewHistoryHandler(historyService)
+
+	authMiddleware := web.NewAuthMiddleware((userService))
 
 	// 5. Router Setup
 	r := chi.NewRouter()
@@ -91,28 +96,76 @@ func main() {
 
 	//Routes
 	r.Route("/api/v1", func(r chi.Router) {
-		//User routes
+
 		r.Post("/users/create", userHandler.HandleCreateUser)
-		r.Get("/users/login", userHandler.HandleUserLogin)
-		r.Get("/users/getAll", userHandler.HandleGetAllUsers)
+		r.Post("/users/login", userHandler.HandleUserLogin)
 
-		//Project routes
-		r.Post("/projects/create", projectHandler.HandleCreateProject)
-		r.Get("/projects/getAll", projectHandler.HandleGetAllProjects)
-		r.Get("/projects/getByID/{id}", projectHandler.HandleGetProjectByID)
-		r.Get("/projects/getByCustomerLastname/{lastname}", projectHandler.HandleGetProjectByCustomerLastname)
-		r.Get("/projects/getByAddress/{address}", projectHandler.HandleGetProjectByAddress)
-		r.Get("/projects/getAllCustomerLastnames", projectHandler.HandleGetAllCustomerLastnames)
-		r.Get("/projects/getAllAddresses", projectHandler.HandleGetAllAddresses)
-		r.Get("/projects/getByManagerID/{managerID}", projectHandler.HandleGetByManagerID)
+		//Nur Admin
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin))
 
-		//ProjectStep routes
-		r.Post("/project-steps/create", projectStepHandler.HandleCreateProjectStep)
-		r.Get("/project-steps/getAllByProjectID/{projectID}", projectStepHandler.HandleGetProjectSteps)
-		r.Get("/project-steps/getByID/{projectID}/{stepID}", projectStepHandler.HandleGetProjectStepByID)
-		r.Post("/project-steps/updateProgress/{stepID}", projectStepHandler.HandleUpdateStepProgress)
+		})
+
+		//Admin, Innendienst
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst))
+
+			r.Get("/users/getAll", userHandler.HandleGetAllUsers)
+
+			r.Post("/projects/create", projectHandler.HandleCreateProject)
+			r.Post("/project-steps/create", projectStepHandler.HandleCreateProjectStep)
+			r.Put("/projects/editProject/{projectID}", projectHandler.HandleUpdateProject)
+		})
+
+		//Admin, Innendienst, Handwerker
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst, domain.RoleHandwerker))
+
+			r.Get("/projects/getAll", projectHandler.HandleGetAllProjects)
+			r.Get("/projects/getByID/{id}", projectHandler.HandleGetProjectByID)
+			r.Get("/projects/getAllCustomerLastnames", projectHandler.HandleGetAllCustomerLastnames)
+			r.Get("/projects/getAllAddresses", projectHandler.HandleGetAllAddresses)
+			r.Get("/projects/getByManagerID/{managerID}", projectHandler.HandleGetByManagerID)
+			r.Post("/project-steps/updateProgress/{stepID}", projectStepHandler.HandleUpdateStepProgress)
+			r.Get("/history/getHistory/{projectID}", historyHandler.HandleGetHistory)
+		})
+
+		//Admin, Innendienst, Handwerker, Kunde
+		r.Group(func(r chi.Router) {
+			r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst, domain.RoleHandwerker, domain.RoleCustomer))
+
+			r.Get("/projects/getByCustomerLastname/{lastname}", projectHandler.HandleGetProjectByCustomerLastname)
+			r.Get("/projects/getByAddress/{address}", projectHandler.HandleGetProjectByAddress)
+			r.Get("/project-steps/getAllByProjectID/{projectID}", projectStepHandler.HandleGetProjectSteps)
+			r.Get("/project-steps/getByID/{projectID}/{stepID}", projectStepHandler.HandleGetProjectStepByID)
+			r.Get("/history/getHistory/{projectID}", historyHandler.HandleGetHistory)
+		})
 	})
 
+	frontendRouter := chi.NewRouter()
+	frontendPath := "./frontend/dist"
+	fileServer := http.FileServer(http.Dir(frontendPath))
+
+	frontendRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
+		fullPath := frontendPath + r.URL.Path
+		info, err := os.Stat(fullPath)
+
+		if os.IsNotExist(err) || info.IsDir() {
+			http.ServeFile(w, r, frontendPath+"/index.html")
+			return
+		}
+		fileServer.ServeHTTP(w, r)
+	})
+
+	go func() {
+		log.Println("Frontend startet auf Port 8040")
+		if err := http.ListenAndServe(":8040", frontendRouter); err != nil {
+			log.Fatalf("Frontend-Server Fehler: %v", err)
+		}
+	}()
+
 	log.Println("Server startet auf :8080")
-	http.ListenAndServe(":8080", r)
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatalf("Backend-Server Fehler: %v", err)
+	}
 }

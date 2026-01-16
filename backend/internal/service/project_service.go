@@ -63,3 +63,8 @@ func (s *ProjectService) GetAllAddresses(ctx context.Context) ([]string, error) 
 func (s *ProjectService) GetByManagerID(ctx context.Context, managerId string) ([]domain.ProjectDB, error) {
 	return s.repo.GetByManagerID(ctx, managerId)
 }
+
+func (s *ProjectService) UpdateProject(ctx context.Context, input domain.UpdateProjectDTO) error {
+	// Hier könnten Validierungen stehen (z.B. existiert der Manager?)
+	return s.repo.UpdateProject(ctx, &input)
+}

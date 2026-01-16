@@ -4,6 +4,7 @@ import (
 	"backend/internal/domain"
 	"backend/internal/port"
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -11,11 +12,12 @@ import (
 )
 
 type PostgresRepo struct {
-	db *sqlx.DB
+	db      *sqlx.DB
+	storage port.FileStorage
 }
 
-func NewPostgresRepo(db *sqlx.DB) port.ProjectRepository {
-	return &PostgresRepo{db: db}
+func NewPostgresRepo(db *sqlx.DB, storage port.FileStorage) port.ProjectRepository {
+	return &PostgresRepo{db: db, storage: storage}
 }
 
 // User
@@ -82,6 +84,25 @@ func (r *PostgresRepo) GetAllUsers(ctx context.Context) ([]domain.AllUsersDTO, e
 		return nil, fmt.Errorf("Get all users failed: %w", err)
 	}
 	return users, nil
+}
+
+func (r *PostgresRepo) GetUserByID(ctx context.Context, userID string) (domain.UserDB, error) {
+	query := `
+        SELECT id, email, name, role
+        FROM users
+    	WHERE id = $1
+		LIMIT 1
+	`
+
+	var user domain.UserDB
+	err := r.db.GetContext(ctx, &user, query, userID)
+
+	if err != nil {
+		return user, fmt.Errorf("Get user failed: %w", err)
+	}
+
+	return user, nil
+
 }
 
 // Project
@@ -320,7 +341,6 @@ func (r *PostgresRepo) CreateMedia(ctx context.Context, historyID string, s3Key 
 	return err
 }
 
-// internal/adapter/postgres_repo.go
 func (r *PostgresRepo) UpdateStepWithHistoryAndMedia(ctx context.Context, stepID, userID, status, note, s3Key, fileType string) error {
 	tx, err := r.db.BeginTxx(ctx, nil)
 	if err != nil {
@@ -364,4 +384,108 @@ func (r *PostgresRepo) UpdateStepWithHistoryAndMedia(ctx context.Context, stepID
 
 	// 4. Transaktion abschließen
 	return tx.Commit()
+}
+
+func (r *PostgresRepo) GetHistory(ctx context.Context, projectID string) ([]domain.ProjectStepHistoryDTO, error) {
+	query := `
+		WITH media_agg AS (
+			SELECT 
+				history_id, 
+				jsonb_agg(jsonb_build_object(
+					'id', id,
+					's3_key', s3_key,
+					'file_type', file_type
+				)) AS photos
+			FROM media
+			GROUP BY history_id
+		),
+		history_agg AS (
+			SELECT 
+				h.step_id,
+				jsonb_agg(jsonb_build_object(
+					'id', h.id,
+					'status', h.new_status,
+					'note', h.note,
+					'user_name', COALESCE(u.name, 'Unbekannt'),
+					'timestamp', h.timestamp,
+					'photos', COALESCE(m.photos, '[]'::jsonb)
+				) ORDER BY h.timestamp DESC) AS entries
+			FROM project_history h
+			LEFT JOIN users u ON h.user_id = u.id
+			LEFT JOIN media_agg m ON h.id = m.history_id
+			GROUP BY h.step_id
+		)
+		SELECT 
+			ps.id, ps.project_id, ps.title, ps.description, 
+			ps.start_date, ps.end_date, ps.progress, ps.created_at,
+			COALESCE(ha.entries, '[]'::jsonb) as history_json
+		FROM project_steps ps
+		LEFT JOIN history_agg ha ON ps.id = ha.step_id
+		WHERE ps.project_id = $1::uuid
+		ORDER BY ps.created_at ASC
+	`
+
+	var results []struct {
+		domain.ProjectStepDB
+		HistoryJSON []byte `db:"history_json"`
+	}
+
+	err := r.db.SelectContext(ctx, &results, query, projectID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch project steps with history: %w", err)
+	}
+
+	finalSteps := make([]domain.ProjectStepHistoryDTO, len(results))
+
+	for i, res := range results {
+		finalSteps[i].ProjectStepDB = res.ProjectStepDB
+
+		if err := json.Unmarshal(res.HistoryJSON, &finalSteps[i].History); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal history for step %s: %w", res.ID, err)
+		}
+
+		for j := range finalSteps[i].History {
+			for k := range finalSteps[i].History[j].Photos {
+				photo := &finalSteps[i].History[j].Photos[k]
+
+				url, err := r.storage.GetPresignedURL(ctx, photo.S3Key)
+				if err != nil {
+					fmt.Printf("Warning: could not generate URL for key %s: %v\n", photo.S3Key, err)
+					continue
+				}
+
+				photo.Url = url
+			}
+		}
+	}
+
+	return finalSteps, nil
+}
+
+func (r *PostgresRepo) UpdateProject(ctx context.Context, p *domain.UpdateProjectDTO) error {
+	query := `
+		UPDATE projects 
+		SET manager_id = $1, 
+		    customer_lastname = $2, 
+		    address = $3, 
+		    description = $4, 
+		    start_date = NULLIF($5, '')::date, 
+		    end_date = NULLIF($6, '')::date, 
+		    progress = $7
+		WHERE id = $8
+	`
+	_, err := r.db.ExecContext(ctx, query,
+		p.ManagerID,
+		p.CustomerLastname,
+		p.Address,
+		p.Description,
+		p.StartDate,
+		p.EndDate,
+		p.Progress,
+		p.ID,
+	)
+	if err != nil {
+		return fmt.Errorf("update project failed: %w", err)
+	}
+	return nil
 }

@@ -33,3 +33,7 @@ func (s *UserService) UserLogin(ctx context.Context, input domain.UserLoginDTO) 
 func (s *UserService) GetAllUsers(ctx context.Context) ([]domain.AllUsersDTO, error) {
 	return s.repo.GetAllUsers(ctx)
 }
+
+func (s *UserService) GetUserByID(ctx context.Context, userID string) (domain.UserDB, error) {
+	return s.repo.GetUserByID(ctx, userID)
+}

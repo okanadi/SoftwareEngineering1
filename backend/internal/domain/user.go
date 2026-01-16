@@ -9,9 +9,10 @@ import (
 type UserRole string
 
 const (
-	RoleHandwerker UserRole = "handwerker"
-	RoleBauleiter  UserRole = "innendienst"
-	RoleAdmin      UserRole = "admin"
+	RoleHandwerker  UserRole = "handwerker"
+	RoleInnendienst UserRole = "innendienst"
+	RoleAdmin       UserRole = "admin"
+	RoleCustomer    UserRole = "customer"
 )
 
 type CreateUserDTO struct {
