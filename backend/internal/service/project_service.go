@@ -1,10 +1,12 @@
 package service
 
 import (
+	"archive/zip"
 	"backend/internal/domain"
 	"backend/internal/port"
 	"context"
 	"fmt"
+	"net/http"
 )
 
 type ProjectService struct {
@@ -67,4 +69,54 @@ func (s *ProjectService) GetByManagerID(ctx context.Context, managerId string) (
 func (s *ProjectService) UpdateProject(ctx context.Context, input domain.UpdateProjectDTO) error {
 	// Hier könnten Validierungen stehen (z.B. existiert der Manager?)
 	return s.repo.UpdateProject(ctx, &input)
+}
+
+func (s *ProjectService) ExportProjectAsZip(ctx context.Context, projectID string, w http.ResponseWriter) error {
+	// 1. Daten aus der DB holen (unsere vorhandene SQL-Funktion)
+	steps, err := s.repo.GetHistory(ctx, projectID)
+	if err != nil {
+		return err
+	}
+
+	// 2. ZIP-Writer auf den ResponseWriter legen
+	zipWriter := zip.NewWriter(w)
+	defer zipWriter.Close()
+
+	// 3. Einen Text-Bericht generieren (Zusammenfassung der Historie)
+	report := "PROJEKT EXPORT PROTOKOLL\n========================\n"
+
+	for _, step := range steps {
+		report += fmt.Sprintf("\nSchritt: %s (Status: %s)\n", step.Title, step.Progress)
+
+		for _, entry := range step.History {
+			report += fmt.Sprintf("- [%s] %s: %s\n",
+				entry.Timestamp.Format("02.01.2006 15:04"),
+				entry.UserName,
+				entry.Note)
+
+			// 4. Bilder für diesen History-Eintrag hinzufügen
+			for i, photo := range entry.Photos {
+				// Bild von S3 streamen
+				imgBytes, err := s.storage.DownloadFile(ctx, photo.S3Key)
+				if err != nil {
+					continue // Falls ein Bild fehlt, trotzdem weitermachen
+				}
+
+				// Dateiname im ZIP: "Bilder/Schrittname_Datum_Index.jpg"
+				fileName := fmt.Sprintf("Bilder/%s_%s_%d.jpg",
+					step.Title,
+					entry.Timestamp.Format("2006-01-02"),
+					i)
+
+				f, _ := zipWriter.Create(fileName)
+				f.Write(imgBytes)
+			}
+		}
+	}
+
+	// 5. Das Protokoll als Text-Datei ins ZIP legen
+	f, _ := zipWriter.Create("protokoll.txt")
+	f.Write([]byte(report))
+
+	return nil
 }
