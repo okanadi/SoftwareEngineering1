@@ -30,7 +30,7 @@
   async function loadHistory() {
     try {
       const response = await fetch(
-        `http://13.49.46.226:8080/api/v1/project-steps/getAllByProjectID/${projectId}`
+        `http://13.49.46.226:8080/api/v1/history/getHistory/${projectId}`
       );
 
       if (!response.ok) {
