@@ -28,6 +28,24 @@
     console.log('Project step created:', event.detail);
     showStepModal = false;
   }
+
+  function handleDownload() {
+    if (!data.project) return;
+    const link = document.createElement('a');
+    link.href = `http://13.49.46.226:8080/api/v1/projects/export/${data.project.id}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  const timelineSteps = [
+    { value: 'geplant', label: 'Planned' },
+    { value: 'in_arbeit', label: 'in_arbeit' },
+    { value: 'fertiggestellt', label: 'fertig' }
+  ];
+
+  $: currentStepIndex = data.project ? timelineSteps.findIndex(s => s.value === data.project.progress) : 0;
+  $: progressPercentage = timelineSteps.length > 1 ? (Math.max(0, currentStepIndex) / (timelineSteps.length - 1)) * 100 : 0;
 </script>
 
 <main class="container mx-auto p-4 pt-24 md:pt-32 flex justify-center">
@@ -43,6 +61,12 @@
             Edit
           </button>
           <button
+            on:click={handleDownload}
+            class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-semibold transition"
+          >
+            Download ZIP
+          </button>
+          <button
             on:click={goToSteps}
             class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition"
           >
@@ -56,6 +80,47 @@
           </button>
         </div>
       </div>
+
+      <!-- Example Timeline -->
+      <div class="mb-8 bg-white/5 backdrop-blur-md shadow-xl border border-white/20 rounded-lg p-6">
+        <h2 class="text-2xl font-bold text-white mb-8">Project Progress</h2>
+        <div class="relative mx-4">
+          <!-- Progress Line -->
+          <div class="absolute top-1/2 left-0 w-full h-1 bg-white/10 -translate-y-1/2 rounded z-0"></div>
+          <div 
+            class="absolute top-1/2 left-0 h-1 bg-blue-500 -translate-y-1/2 rounded z-0 transition-all duration-500"
+            style="width: {progressPercentage}%"
+          ></div>
+
+          <div class="relative flex justify-between w-full">
+            {#each timelineSteps as step, index}
+              <div class="flex flex-col items-center relative z-10">
+                <div 
+                  class="w-8 h-8 rounded-full flex items-center justify-center font-bold ring-4 ring-gray-800/50 transition-colors duration-300
+                  {index < currentStepIndex ? 'bg-green-500 text-white' : 
+                   index === currentStepIndex ? 'bg-blue-500 text-white' : 
+                   'bg-gray-700 text-white/50'}"
+                >
+                  {#if index < currentStepIndex}
+                    ✓
+                  {:else}
+                    {index + 1}
+                  {/if}
+                </div>
+                <div class="absolute top-10 text-center w-32">
+                  <p class="text-white font-semibold text-sm mt-1">{step.label}</p>
+                  <p class="text-white/50 text-xs">
+                    {index < currentStepIndex ? 'Completed' : 
+                     index === currentStepIndex ? 'Current' : 'Pending'}
+                  </p>
+                </div>
+              </div>
+            {/each}
+          </div>
+        </div>
+        <div class="h-16"></div>
+      </div>
+
       <ProjectDetails project={data.project} />
       <ProjectHistory projectId={data.project.id} />
       <EditProjectModal project={data.project} bind:isOpen={showEditModal} />
