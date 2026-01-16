@@ -51,7 +51,7 @@
         {#each buttons as btn}
           <button
             type="submit"
-            class="px-5 py-2 rounded-lg bg-white/20 hover:bg-white/30 transition"
+            class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition"
           >
             {btn.label}
           </button>

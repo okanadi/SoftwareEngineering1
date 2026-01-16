@@ -1,1 +1,3 @@
-export { default as component } from "../../../../src/routes/employee/projects/[id]/+layout.svelte";
+import * as universal from "../../../../src/routes/project-detail/[id]/+page.ts";
+export { universal };
+export { default as component } from "../../../../src/routes/project-detail/[id]/+page.svelte";

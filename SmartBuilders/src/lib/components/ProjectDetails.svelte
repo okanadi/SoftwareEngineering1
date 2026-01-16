@@ -39,7 +39,7 @@
   }
 </script>
 
-<div class="bg-white/10 p-6 rounded-2xl border border-white/20 shadow-lg">
+<div class="bg-white/5 backdrop-blur-md shadow-xl p-6 rounded-2xl border border-white/20">
   <h3 class="text-2xl font-bold mb-6 text-white">Project Information</h3>
   <div class="space-y-4">
     {#each Object.entries(project) as [key, value]}

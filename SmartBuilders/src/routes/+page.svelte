@@ -3,15 +3,14 @@
   import { goto } from '$app/navigation';
 
   let projectId = '';
+  let managerId = '';
 
-  function handleRole(role: string) {
-    if (role === 'kunde') {
-      goto('/customer/projects');
-    } else if (role === 'firma') {
-      goto('/company/projects');
-    } else if (role === 'mitarbeiter') {
-      goto('/employee/projects');
-     }
+  function handleManagerIdSubmit() {
+    if (managerId.trim()) {
+      goto(`/projects?managerId=${encodeURIComponent(managerId)}`);
+    } else {
+      alert('Please enter a Manager ID.');
+    }
   }
 </script>
 
@@ -20,19 +19,10 @@
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto p-10">
 
   <Card
-    title="Organisiere jetzt deine Projekte!"
-    buttons={[
-      { label: 'Kunde', name: 'kunde' },
-      { label: 'Firma', name: 'firma' },
-      { label: 'Mitarbeiter', name: 'mitarbeiter' }
-    ]}
-    onButtonClick={handleRole}
-          onArrowClick={() => {
-        // The main action is handled by the buttons, but you could
-        // define a default behavior for the arrow as well.
-        // For example, go to a generic projects page if no role is selected.
-        goto('/customer/projects');
-      }}
+    title="Meine Projekte anschauen"
+    inputPlaceholder="Manager ID eingeben"
+    bind:inputValue={managerId}
+    onArrowClick={handleManagerIdSubmit}
   />
   
      <Card
