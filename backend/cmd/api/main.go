@@ -2,7 +2,6 @@ package main
 
 import (
 	"backend/internal/adapter"
-	"backend/internal/domain"
 	"backend/internal/service"
 	"backend/internal/web"
 	"context"
@@ -71,7 +70,7 @@ func main() {
 	projectStepHandler := web.NewProjectStepHandler(projectStepService)
 	historyHandler := web.NewHistoryHandler(historyService)
 
-	authMiddleware := web.NewAuthMiddleware((userService))
+	// authMiddleware := web.NewAuthMiddleware((userService))
 
 	// 5. Router Setup
 	r := chi.NewRouter()
@@ -101,45 +100,45 @@ func main() {
 		r.Post("/users/login", userHandler.HandleUserLogin)
 
 		//Nur Admin
-		r.Group(func(r chi.Router) {
-			r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin))
+		// r.Group(func(r chi.Router) {
+		// r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin))
 
-		})
+		// })
 
-		//Admin, Innendienst
-		r.Group(func(r chi.Router) {
-			r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst))
+		// //Admin, Innendienst
+		// r.Group(func(r chi.Router) {
+		// r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst))
 
-			r.Get("/users/getAll", userHandler.HandleGetAllUsers)
+		r.Get("/users/getAll", userHandler.HandleGetAllUsers)
 
-			r.Post("/projects/create", projectHandler.HandleCreateProject)
-			r.Post("/project-steps/create", projectStepHandler.HandleCreateProjectStep)
-			r.Put("/projects/editProject/{projectID}", projectHandler.HandleUpdateProject)
-		})
+		r.Post("/projects/create", projectHandler.HandleCreateProject)
+		r.Post("/project-steps/create", projectStepHandler.HandleCreateProjectStep)
+		r.Put("/projects/editProject/{projectID}", projectHandler.HandleUpdateProject)
+		// })
 
-		//Admin, Innendienst, Handwerker
-		r.Group(func(r chi.Router) {
-			r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst, domain.RoleHandwerker))
+		// //Admin, Innendienst, Handwerker
+		// r.Group(func(r chi.Router) {
+		// r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst, domain.RoleHandwerker))
 
-			r.Get("/projects/getAll", projectHandler.HandleGetAllProjects)
-			r.Get("/projects/getByID/{id}", projectHandler.HandleGetProjectByID)
-			r.Get("/projects/getAllCustomerLastnames", projectHandler.HandleGetAllCustomerLastnames)
-			r.Get("/projects/getAllAddresses", projectHandler.HandleGetAllAddresses)
-			r.Get("/projects/getByManagerID/{managerID}", projectHandler.HandleGetByManagerID)
-			r.Post("/project-steps/updateProgress/{stepID}", projectStepHandler.HandleUpdateStepProgress)
-			r.Get("/history/getHistory/{projectID}", historyHandler.HandleGetHistory)
-		})
+		r.Get("/projects/getAll", projectHandler.HandleGetAllProjects)
+		r.Get("/projects/getByID/{id}", projectHandler.HandleGetProjectByID)
+		r.Get("/projects/getAllCustomerLastnames", projectHandler.HandleGetAllCustomerLastnames)
+		r.Get("/projects/getAllAddresses", projectHandler.HandleGetAllAddresses)
+		r.Get("/projects/getByManagerID/{managerID}", projectHandler.HandleGetByManagerID)
+		r.Post("/project-steps/updateProgress/{stepID}", projectStepHandler.HandleUpdateStepProgress)
+		r.Get("/history/getHistory/{projectID}", historyHandler.HandleGetHistory)
+		// })
 
-		//Admin, Innendienst, Handwerker, Kunde
-		r.Group(func(r chi.Router) {
-			r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst, domain.RoleHandwerker, domain.RoleCustomer))
+		// //Admin, Innendienst, Handwerker, Kunde
+		// r.Group(func(r chi.Router) {
+		// r.Use(authMiddleware.RoleMiddleware(domain.RoleAdmin, domain.RoleInnendienst, domain.RoleHandwerker, domain.RoleCustomer))
 
-			r.Get("/projects/getByCustomerLastname/{lastname}", projectHandler.HandleGetProjectByCustomerLastname)
-			r.Get("/projects/getByAddress/{address}", projectHandler.HandleGetProjectByAddress)
-			r.Get("/project-steps/getAllByProjectID/{projectID}", projectStepHandler.HandleGetProjectSteps)
-			r.Get("/project-steps/getByID/{projectID}/{stepID}", projectStepHandler.HandleGetProjectStepByID)
-			r.Get("/history/getHistory/{projectID}", historyHandler.HandleGetHistory)
-		})
+		r.Get("/projects/getByCustomerLastname/{lastname}", projectHandler.HandleGetProjectByCustomerLastname)
+		r.Get("/projects/getByAddress/{address}", projectHandler.HandleGetProjectByAddress)
+		r.Get("/project-steps/getAllByProjectID/{projectID}", projectStepHandler.HandleGetProjectSteps)
+		r.Get("/project-steps/getByID/{projectID}/{stepID}", projectStepHandler.HandleGetProjectStepByID)
+		r.Get("/history/getHistory/{projectID}", historyHandler.HandleGetHistory)
+		// })
 	})
 
 	frontendRouter := chi.NewRouter()
