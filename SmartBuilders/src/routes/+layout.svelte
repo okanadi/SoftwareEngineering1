@@ -10,7 +10,7 @@
 </svelte:head>
 
 <div class="relative min-h-screen bg-cover bg-center bg-no-repeat"
-     style="background-image: url('/assets/SmartBuildersBackground.webp');">
+     style="background-image: url('/assets/SmartBuildersBackgroundGradient.jpg');">
 
 	<!-- overlay -->
 	<div class="absolute inset-0 bg-black/70"></div>

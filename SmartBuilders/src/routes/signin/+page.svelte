@@ -45,12 +45,13 @@
         },
         body: JSON.stringify({ email, password })
       });
-      
-      const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.error || `Server responded with status ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(errorText || `Server responded with status ${response.status}`);
       }
+      
+      const responseData = await response.json();
       
       successMessage = 'Signin successful! Redirecting...';
       console.log('User signed in:', responseData);
