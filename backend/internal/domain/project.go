@@ -28,3 +28,14 @@ type ProjectDB struct {
 	Progress         string     `db:"progress" json:"progress"`
 	CreatedAt        *time.Time `db:"created_at" json:"created_at"`
 }
+
+type UpdateProjectDTO struct {
+	ID               string `json:"id"`
+	ManagerID        string `json:"manager_id"`
+	CustomerLastname string `json:"customer_lastname"`
+	Address          string `json:"address"`
+	Description      string `json:"description"`
+	StartDate        string `json:"start_date"`
+	EndDate          string `json:"end_date"`
+	Progress         string `json:"progress"`
+}

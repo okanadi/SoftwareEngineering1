@@ -11,6 +11,7 @@ type ProjectRepository interface {
 	CreateUser(ctx context.Context, user *domain.CreateUserDTO) (string, error)
 	UserLogin(ctx context.Context, input *domain.UserLoginDTO) (*domain.UserDB, error)
 	GetAllUsers(ctx context.Context) ([]domain.AllUsersDTO, error)
+	GetUserByID(ctx context.Context, userID string) (domain.UserDB, error)
 
 	//ProjectHandler
 	CreateProject(ctx context.Context, project *domain.CreateProjectDTO) (string, error)
@@ -21,11 +22,15 @@ type ProjectRepository interface {
 	GetProjectByAddress(ctx context.Context, address string) ([]domain.ProjectDB, error)
 	GetAllCustomerLastnames(ctx context.Context) ([]string, error)
 	GetAllAddresses(ctx context.Context) ([]string, error)
+	UpdateProject(ctx context.Context, p *domain.UpdateProjectDTO) error
 
 	//ProjectStepHandler
 	CreateProjectStep(ctx context.Context, step *domain.CreateProjectStepDTO) (string, error)
 	GetStepsProjectByProjectID(ctx context.Context, projectID string) ([]domain.ProjectStepDB, error)
 	UpdateStepWithHistoryAndMedia(ctx context.Context, stepID, userID, status, note, s3Key, fileType string) error
+
+	//HistoryHandler
+	GetHistory(ctx context.Context, projectID string) ([]domain.ProjectStepHistoryDTO, error)
 }
 
 type FileStorage interface {

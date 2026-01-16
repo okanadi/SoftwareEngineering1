@@ -123,3 +123,22 @@ func (h *ProjectHandler) HandleGetByManagerID(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(projects)
 }
+
+func (h *ProjectHandler) HandleUpdateProject(w http.ResponseWriter, r *http.Request) {
+	projectID := chi.URLParam(r, "projectID")
+
+	var input domain.UpdateProjectDTO
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Ungültiges JSON", http.StatusBadRequest)
+		return
+	}
+	input.ID = projectID
+
+	if err := h.service.UpdateProject(r.Context(), input); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Projekt erfolgreich aktualisiert"})
+}
