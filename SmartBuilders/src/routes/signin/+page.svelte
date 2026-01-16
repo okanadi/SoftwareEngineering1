@@ -39,7 +39,7 @@
 
     try {
       const response = await fetch('http://13.49.46.226:8080/api/v1/users/login', {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -56,11 +56,8 @@
       successMessage = 'Signin successful! Redirecting...';
       console.log('User signed in:', responseData);
 
-      // Here you would typically store the auth token, e.g., in localStorage or a cookie
-      // localStorage.setItem('token', responseData.token);
-
       setTimeout(() => {
-        goto('/customer/projects');
+        goto('/projects');
       }, 2000);
 
     } catch (error: any) {

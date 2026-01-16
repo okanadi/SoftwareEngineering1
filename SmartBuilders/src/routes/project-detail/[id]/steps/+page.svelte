@@ -1,10 +1,27 @@
 <script lang="ts">
   import type { PageData } from './$types';
+  import EditProjectStepModal from '$lib/components/EditProjectStepModal.svelte';
 
   export let data: PageData;
 
+  let showEditStepModal = false;
+  let selectedStep: any = null;
+
   function goBack() {
     history.back();
+  }
+
+  function openEditModal(step: any) {
+    selectedStep = step;
+    showEditStepModal = true;
+  }
+
+  function handleStepUpdated(event: CustomEvent) {
+    const { progress } = event.detail;
+    if (selectedStep) {
+      selectedStep.progress = progress;
+    }
+    showEditStepModal = false;
   }
 </script>
 
@@ -29,9 +46,17 @@
                 <h2 class="text-2xl font-bold text-white">{step.title}</h2>
                 <p class="text-white/70 text-sm mt-1">{step.description}</p>
               </div>
-              <span class="px-3 py-1 rounded-full text-sm font-semibold bg-blue-500/30 text-blue-300">
-                {step.progress}
-              </span>
+              <div class="flex gap-3">
+                <span class="px-3 py-1 rounded-full text-sm font-semibold bg-blue-500/30 text-blue-300">
+                  {step.progress}
+                </span>
+                <button
+                  on:click={() => openEditModal(step)}
+                  class="px-4 py-1 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg font-semibold transition text-sm"
+                >
+                  Edit
+                </button>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mt-4">
@@ -64,6 +89,10 @@
       <div class="text-center p-8">
         <p class="text-white/80 text-lg">Loading project steps...</p>
       </div>
+    {/if}
+
+    {#if selectedStep}
+      <EditProjectStepModal step={selectedStep} bind:isOpen={showEditStepModal} on:stepUpdated={handleStepUpdated} />
     {/if}
   </div>
 </main>
