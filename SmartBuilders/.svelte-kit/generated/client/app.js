@@ -9,36 +9,19 @@ export const nodes = [
 	() => import('./nodes/5'),
 	() => import('./nodes/6'),
 	() => import('./nodes/7'),
-	() => import('./nodes/8'),
-	() => import('./nodes/9'),
-	() => import('./nodes/10'),
-	() => import('./nodes/11'),
-	() => import('./nodes/12'),
-	() => import('./nodes/13'),
-	() => import('./nodes/14'),
-	() => import('./nodes/15'),
-	() => import('./nodes/16'),
-	() => import('./nodes/17'),
-	() => import('./nodes/18')
+	() => import('./nodes/8')
 ];
 
 export const server_loads = [];
 
 export const dictionary = {
-		"/": [5],
-		"/company/projects": [6],
-		"/company/projects/[id]": [7,[2]],
-		"/company/projects/[id]/edit": [8,[2]],
-		"/create-project": [9],
-		"/customer/projects": [10],
-		"/customer/projects/[id]": [11,[3]],
-		"/customer/projects/[id]/edit": [12,[3]],
-		"/employee/projects": [13],
-		"/employee/projects/[id]": [14,[4]],
-		"/employee/projects/[id]/edit": [15,[4]],
-		"/project-detail/[id]": [16],
-		"/signin": [17],
-		"/signup": [18]
+		"/": [2],
+		"/create-project": [3],
+		"/project-detail/[id]": [4],
+		"/project-detail/[id]/steps": [5],
+		"/projects": [6],
+		"/signin": [7],
+		"/signup": [8]
 	};
 
 export const hooks = {
